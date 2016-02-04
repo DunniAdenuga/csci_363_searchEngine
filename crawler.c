@@ -17,10 +17,23 @@
 #define BUFFSIZE	512
 #define HTTPPORT   80
 
-
-char *make_request(char *host, char *path, char *svc);    // request service from web server
+// function definitions
+char *get_page(char *page_name);
+char *make_request(char *host, char *path, char *svc);
 char *get_host(char *page_name);
 char *get_path(char *page_name);
+int str_expand(char *buf, int cur_size);
+char *str_join(char **buf, int total_len);
+
+
+int main(int argc, char **argv){
+  char page_name[BUFFSIZE];
+  fgets(page_name, BUFFSIZE, stdin);
+
+  char *page_code = get_page(page_name);
+  printf("%s\n", page_code);
+  return 0;
+}
 
 char *get_page(char *page_name){
   char *host = get_host(page_name);
@@ -41,22 +54,19 @@ char *make_request(char *host, char *path, char *svc)
   int	port = HTTPPORT;
   int	conn;
   int	len;
-  int app = HTTPPORT;
-
-  int cur_size = BUFFSIZE;
-  int cur_space = cur_size;
 
   char in_buff[BUFFSIZE];
-  char *out_buff = malloc(cur_size);
+  char out_buff[512];
+  char *page_buff[2048];
 	
   /* contact the web server */
-  conn = socketClient(host, app);
+  conn = socketClient(host, port);
   if (conn < 0) 
     exit(1);
 
   /* send an HTTP/1.1 request to the webserver */
 
-  sprint(out_buff, "%s %s HTTP/1.1\r\nHost: %s\r\n", svc, path, host);
+  sprintf(out_buff, "%s %s HTTP/1.1\r\nHost: %s\r\n", svc, path, host);
   strcat(out_buff, "User-Agent: self-module\r\n");
   strcat(out_buff, "Accept: text/html,applicaiton/xhtml+xml\r\n");
   strcat(out_buff, "Accept-Language: en-us,en;q=0.5\r\n");
@@ -71,28 +81,35 @@ char *make_request(char *host, char *path, char *svc)
   (void) send(conn, out_buff, len, 0);
 
   /* dump all data received from the server to stdout */
-
+  int i = 0;
+  int total = 0;
+  page_buff[0] = malloc(BUFFSIZE);
   while((len = recv(conn, in_buff, BUFFSIZE-1, 0)) > 0){
-    // increase buffer size if necessary
-    in_buff[len] = '\0';    // null ternimate string
-    cur_space -= len;
-    if(cur_space <= 0){
-      int added = str_expand(out_buff, cur_size);
-      cur_size += added;
-      cur_space += added;
-    }
-
-    strcat(out_buff, in_buff);
+    page_buff[i][len] = '\0';
+    printf("%s\n", page_buff[i]);
+    i++;
+    total += len;
+    page_buff[i] = malloc(BUFFSIZE);
   }
 
+  return str_join(page_buff, total + 1);
+}
+
+char *str_join(char **buff, int total_len){
+  char *out_buff = malloc(total_len);
+  out_buff[0] = '\0';
+  int i;
+  for(i = 0; buff[i] != NULL; i++){
+    strcat(out_buff, buff[i]);
+    free(buff[i]);
+  }
   return out_buff;
 }
 
 int str_expand(char *buff, int cur_size){
   int new_size = 2*cur_size;
-  char *new_buff = malloc(new_size);
+  char *new_buff = calloc(new_size, sizeof(char));
   strcpy(new_buff, buff);
-  free(buff);
   buff = new_buff;
   return new_size - cur_size;
 }
