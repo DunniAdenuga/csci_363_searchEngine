@@ -4,11 +4,12 @@ import sys
 
 while(True):
 	#Read line in and find any URLs it contains
-	line = input("")
-	regEx = '(<.+?href=(".+?"|\'.+?\').*?>)'
+	line = input()
+	regEx = '(<a.+?href=(".+?//.+?"|\'.+?//.+?\').*?>)'
 	p = re.compile(regEx)
 	for group in p.findall(line):
 		#Convert relative URL to absolute URL
+		print("REL URL = " + group[0]);
 		relUrl = group[1].split("/")
 		host = relUrl[0]+"//"+relUrl[2]+"/"
 		relUrl = relUrl[3:]
@@ -26,6 +27,5 @@ while(True):
 				else:
 					absUrl = relUrl[urlLen-i] + "/" + absUrl
 		sys.stdout.write(host+absUrl)
-
-
+		print("")
 
