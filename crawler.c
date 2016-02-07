@@ -26,14 +26,14 @@ int str_expand(char *buf, int cur_size);
 char *str_join(char **buf, int total_len);
 
 
-int main(int argc, char **argv){
+/*int main(int argc, char **argv){
   char page_name[BUFFSIZE];
   fgets(page_name, BUFFSIZE, stdin);
 
   char *page_code = get_page(page_name);
   printf("%s\n", page_code);
   return 0;
-}
+  }*/
 
 char *get_page(char *page_name){
   char *host = get_host(page_name);
