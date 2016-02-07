@@ -25,32 +25,13 @@ char *str_join(char **buf);
 int str_expand(char *buf, int cur_size);
 int make_request(char *host, char *path, char *svc);
 
-
-/*
-int main(int argc, char **argv){
-  char host[BUFFSIZE];
-  char path[BUFFSIZE];
-
-  fgets(host, BUFFSIZE, stdin);
-  fgets(path, BUFFSIZE, stdin);
-
-  // remove newlines
-  host[strlen(host) - 1] = '\0';
-  path[strlen(path) - 1] = '\0';
-
-
-  char *page_code = get_page(host, path);
-  printf("%s\n", page_code);
-  free(page_code);
-  return 0;
-}
-*/
-
+// get the html from the page of host and path
 char *get_page(char *host, char *path){
   int sock_fd = make_request(host, path, "GET");
   return get_response(sock_fd);
 }
 
+// make a request to the server and return the socket fd
 int make_request(char *host, char *path, char *svc)
 {
   int	port = HTTPPORT;
@@ -82,6 +63,7 @@ int make_request(char *host, char *path, char *svc)
   return conn;
 }
 
+// get the response of a server connected on the provided socket fd
 char *get_response(sock_fd){
   char *out_buff[2048];
   int i; 
@@ -99,7 +81,7 @@ char *get_response(sock_fd){
   return str_join(out_buff);              // out_buff buffers freed by str_join
 }
 
-
+// join the strings of a **buff into a single string and free the buffers
 char *str_join(char **buff){
   char *out_buff;
   int i;

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -12,45 +13,55 @@ extern char **environ;
 #define MAX_PAGE_SIZE 9999
 #define STDOUT 1
 #define STDIN 0
+#define WRITE 1
+#define READ 0
 
-int fd[2];//for pipe
 int Fork(void);
 int Pipe(int*);
 
 int main(int argc, char* argv[]){
-  pid_t pid;
-  int status;
-  if(argc < 2){
-    printf("USAGE: ./pages <PAGE_TO_READ>\n");
+  pid_t pid_parseURL;
+  //int status;
+
+  int com_to_parseURL[2];        // pipe to parseURL
+  int com_from_parseURL[2];      // pipe from parseURL
+
+  if(argc < 3){
+    printf("USAGE: ./pages <PAGE_HOST> <PAGE_PATH\n");
     exit(1);
   }
-  char* initial_page = malloc(MAX_PAGE_SIZE);
+
+  //char* initial_page = malloc(MAX_PAGE_SIZE);
   char* results = malloc(MAX_PAGE_SIZE);
   char* stuff = malloc(MAX_PAGE_SIZE);
-  initial_page = argv[1];//first page to start search from
+
+  char *initial_host = argv[1];       //first page to start search from
+  char *initial_path = argv[2];       //first page to start search from
   
-  results = get_page(initial_page);
+  results = get_page(initial_host, initial_path);
   printf("%s\n", results);
-  //while(results != NULL){
-  Pipe(fd);//create a pipe
-   pid = Fork();
 
-  
-  
- 
-  if(pid > 0){//parent process
-    dup2(0, fd[1]);
-    write(fd[1], results, strlen(results));
-    wait(&status);
-    read(fd[0], stuff, MAX_PAGE_SIZE);
+  //while(results != NULL){                  // used for multiple pages
+  Pipe(com_to_parseURL);                     //create a pipe
+  Pipe(com_from_parseURL);                   //create a pipe
+  pid_parseURL = Fork();
+
+  if(pid_parseURL > 0){    // parent process
+    write(com_to_parseURL[WRITE], results, strlen(results));
+    read(com_from_parseURL[READ], stuff, 5);
     printf("%s\n", stuff);
-  }
 
-  else{
-    execl("/bin/python", "/bin/python", "parseURL.py", (char *)NULL);
-    dup2(1, fd[0]);
+  } else{         // Child process
+    dup2(com_to_parseURL[READ], STDIN);
+    dup2(com_from_parseURL[WRITE], STDOUT);
+    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "parseURL.py", (char *)NULL);
   }
   //}
+  
+  sleep(3);
+  if(pid_parseURL > 0){
+    kill(pid_parseURL, 7);
+  }
   return 1;
 }
 
@@ -58,20 +69,20 @@ int Fork(void)
 {
   int pidy = fork();
   if(-1 == pidy)
-{
-  perror("Error! No child process was created.");
-  //printf("errno = %d.\n", errno);
-  exit(-1);
-}
+  {
+    perror("Error! No child process was created.");
+    //printf("errno = %d.\n", errno);
+    exit(-1);
+  }
   return pidy;
 }
 
 int Pipe(int pipefd[2])
 {
   if(pipe(pipefd) == -1)
-    {
-      perror("Pipe Failed");
-      exit(-1);
-    }
+  {
+    perror("Pipe Failed");
+    exit(-1);
+  }
   return 1;
 }

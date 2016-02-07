@@ -3,16 +3,13 @@ import re
 import sys
 
 while(True):
-	#Read line in and find any URLs it contains
-  print("Reading a line...")
-  #line = input("")
+  #Read line in and find any URLs it contains
   line = sys.stdin.readline()
-  print(line)
-
-  regEx = '(<.+?href=(".+?"|\'.+?\').*?>)'
+  regEx = '(<a.+?href=(".+?//.+?"|\'.+?//.+?\').*?>)'
   p = re.compile(regEx)
   for group in p.findall(line):
     #Convert relative URL to absolute URL
+    #print("REL URL = " + group[0]);
     relUrl = group[1].split("/")
     host = relUrl[0]+"//"+relUrl[2]+"/"
     relUrl = relUrl[3:]
@@ -29,7 +26,9 @@ while(True):
           pass
         else:
           absUrl = relUrl[urlLen-i] + "/" + absUrl
-    sys.stdout.write(host+absUrl)
 
+    f = open("something.txt", 'a')
+    print(host+absUrl+"\n", file=f)
+    f.close()
 
-
+    sys.stdout.write(host+absUrl+"\n")
