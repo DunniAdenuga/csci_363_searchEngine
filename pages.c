@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "crawler.h"
 extern char **environ;
@@ -12,17 +14,24 @@ extern char **environ;
 #define STDIN 0
 
 int fd[2];//for pipe
+int Fork(void);
+int Pipe(int*);
 
 int main(int argc, char* argv[]){
+  pid_t pid;
+  int status;
   if(argc < 2){
+    printf("USAGE: ./pages <PAGE_TO_READ>\n");
     exit(1);
   }
   char* initial_page = malloc(MAX_PAGE_SIZE);
   char* results = malloc(MAX_PAGE_SIZE);
+  char* stuff = malloc(MAX_PAGE_SIZE);
   initial_page = argv[1];//first page to start search from
   
   results = get_page(initial_page);
-  while(results != NULL){
+  printf("%s\n", results);
+  //while(results != NULL){
   Pipe(fd);//create a pipe
    pid = Fork();
 
@@ -32,14 +41,17 @@ int main(int argc, char* argv[]){
   if(pid > 0){//parent process
     dup2(0, fd[1]);
     write(fd[1], results, strlen(results));
-    read(fd[0], initial_page, MAX_PAGE_SIZE);
+    wait(&status);
+    read(fd[0], stuff, MAX_PAGE_SIZE);
+    printf("%s\n", stuff);
   }
 
   else{
-    execl("python", "python", "parseURL.py");
+    execl("/bin/python", "/bin/python", "parseURL.py", (char *)NULL);
     dup2(1, fd[0]);
   }
-  }
+  //}
+  return 1;
 }
 
 int Fork(void)
