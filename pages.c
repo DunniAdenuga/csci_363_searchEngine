@@ -47,13 +47,16 @@ int main(int argc, char* argv[]){
   pid_parseURL = Fork();
 
   if(pid_parseURL > 0){    // parent process
+    
     write(com_to_parseURL[WRITE], results, strlen(results));
+    close(com_to_parseURL[WRITE]);
     read(com_from_parseURL[READ], stuff, 5);
+    close(com_from_parseURL[READ]);
     printf("%s\n", stuff);
 
   } else{         // Child process
-    dup2(com_to_parseURL[READ], STDIN);
-    dup2(com_from_parseURL[WRITE], STDOUT);
+    dup2(STDIN, com_to_parseURL[READ]);//this is the right format
+    dup2( STDOUT, com_from_parseURL[WRITE]);//this is the right format
     execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "parseURL.py", (char *)NULL);
   }
   //}
