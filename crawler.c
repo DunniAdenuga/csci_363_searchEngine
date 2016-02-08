@@ -18,9 +18,11 @@
 #define HTTPPORT   80
 
 // function definitions
+
 char *get_page(char *host, char *path);
 char *get_response(int sock_fd);
 char *str_join(char **buf);
+
 
 int str_expand(char *buf, int cur_size);
 int make_request(char *host, char *path, char *svc);

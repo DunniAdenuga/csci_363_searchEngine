@@ -16,6 +16,7 @@ all: $(EXECS)
 test_crawler: $(CRAWLEROBJS)
 	$(CC) -o $@ $(LFLAGS) $(CRAWLEROBJS)
 
+
 pages: $(PAGEOBJS)
 	$(CC) -o $@ $(LGLAGS) $(PAGEOBJS)
 
