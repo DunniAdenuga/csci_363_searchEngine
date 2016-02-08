@@ -1,0 +1,21 @@
+Greg Shrock, Michael Hammer, and Adenuga Joan
+
+Approach:
+- main program that has a C requester for web pages. 
+- have a file that does requesters
+- main program feeds stuff to sub process that gets the urls line by line
+- greg did crawler funcitons
+- dunni did main program
+- Michael parser
+
+Our team decided to use a divide and conquer approach to develop a solution to phase one. Michael was given the task of being able to extract URLs from a line of html. Greg was tasked with creating funcitons to receive a web page. Dunni was in charge of writing the over arching program that requested files and extracted their URLs. After we all developed our individual parts, we came together and implemented them into our solution. 
+
+The main program was able to request a web page, using Greg's functions, and then parse URLs from it by using Michael's URL parser. To do this the program first requested a web page. Then it created a child process. 
+
+Highlights:
+
+
+Difficulties:
+- directing the output and intputs of processes into stdin and stdout
+- creating a working regular expression
+ 
