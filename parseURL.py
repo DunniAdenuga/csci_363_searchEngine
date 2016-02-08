@@ -28,7 +28,7 @@ while(True):
           absUrl = relUrl[urlLen-i] + "/" + absUrl
 
     f = open("something.txt", 'a')
-    print(host+absUrl+"\n", file=f)
+    print(host+absUrl, file=f)
     f.close()
 
     sys.stdout.write(host+absUrl+"\n")

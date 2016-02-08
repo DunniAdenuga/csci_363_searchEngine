@@ -31,10 +31,10 @@ int OFF = -1;
 int socketClient(char *host, int port)
 {
    int s;                   /* socket descriptor                */
-   int len;                 /* length of received data          */
+   //int len;               /* length of received data          */
    struct sockaddr_in  sa;  /* socket addr. structure           */
    struct hostent * hp;     /* host entry                       */
-   struct servent * sp;     /* service entry                    */
+   //struct servent * sp;   /* service entry                    */
 
    /* 
     * Look up the specified hostname
@@ -88,7 +88,7 @@ int socketServer(int port)
    int s;                   /* socket descriptor                */
    struct sockaddr_in  sa;  /* socket addr. structure           */
    struct hostent * hp;     /* host entry                       */
-   struct servent * sp;     /* service entry                    */
+   //struct servent * sp;   /* service entry                    */
    char localhost[MAXHOSTNAME+1];   /* local host name as character string */
 
 

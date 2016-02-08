@@ -75,7 +75,7 @@ char *get_response(sock_fd){
   for(i = 0; (len = recv(sock_fd, out_buff[i], BUFFSIZE-1, 0)) > 0; i++){
     out_buff[i][len] = '\0';             // null terminate
     out_buff[i+1] = malloc(BUFFSIZE);    // prepare next buffer
-    printf("%s\n", out_buff[i]);
+    //printf("%s\n", out_buff[i]);
   }
 
   return str_join(out_buff);              // out_buff buffers freed by str_join
