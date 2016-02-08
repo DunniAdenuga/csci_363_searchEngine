@@ -31,7 +31,8 @@ int main(int argc, char* argv[]){
   }
 
   char* results;
-  char* stuff = malloc(MAX_PAGE_SIZE);
+  char* stuff;
+  int msg_len;
 
   char *initial_host = argv[1];       //first page to start search from
   char *initial_path = argv[2];       //first page to start search from
@@ -49,14 +50,21 @@ int main(int argc, char* argv[]){
     close(com_from_parseURL[WRITE]);
 
     // write to and read results from child
+    char *term = "\nterminate\n";
+    //strcpy(results, "hello world!");
+    //printf("Str_len: %d\n", (int)strlen(results) );
     write(com_to_parseURL[WRITE], results, strlen(results));
-    read(com_from_parseURL[READ], stuff, sizeof(stuff));
-
+    write(com_to_parseURL[WRITE], term, strlen(term));
+ 
+    //read(com_from_parseURL[READ], &msg_len, sizeof(int));
+    stuff = malloc(MAX_PAGE_SIZE);
+    int return_len = read(com_from_parseURL[READ], stuff, MAX_PAGE_SIZE);
+    stuff[return_len] = '\0';
     free(results);
 
     // print the output
     printf("Read from the parser: %s\n", stuff);
-
+    fflush(stdout);
   } else{         // Child process
     // redirect pipes to stdin and stdout
     Dup2(com_to_parseURL[READ], STDIN_FILENO);
