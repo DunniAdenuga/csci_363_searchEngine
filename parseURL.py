@@ -3,7 +3,8 @@ import re
 import sys
 
 def parse(line):
-  regEx = '(<a.+?href=(".+?//.+?"|\'.+?//.+?\').*?>)'
+  #regEx = '(<a.+?href=(".+?//.+?"|\'.+?//.+?\').*?>)'
+  regEx ='<a\\s*href\\s*=\\s*\"[a-z:/.0-9?#]*\"'
   p = re.compile(regEx)
   output = ""
   for group in p.findall(line):
