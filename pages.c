@@ -14,6 +14,8 @@ extern char **environ;
 #define WRITE 1
 #define READ 0
 
+void print_urls(char *, ssize_t);
+
 int Fork(void);
 int Pipe(int*);
 int Dup2(int, int);
@@ -39,7 +41,7 @@ int main(int argc, char* argv[]){
   //char host[strlen(initial_host)];
   //memcpy(host, initial_path,
  
-  char * host = "www.MICHAEL.edu";
+  //char * host = "www.MICHAEL.edu";
 
   results = get_page(initial_host, initial_path);
 
@@ -55,11 +57,9 @@ int main(int argc, char* argv[]){
 
     // write to and read results from child
     char *term = "\nterminate\n";
-    //strcpy(results, "hello world!");
-    //printf("Str_len: %d\n", (int)strlen(results) );
 
-    printf("The host: %s\n", initial_host);
-    write(com_to_parseURL[WRITE], host, strlen(host));
+    write(com_to_parseURL[WRITE], initial_host, strlen(initial_host));
+    write(com_to_parseURL[WRITE], "\n", 1);
 
     write(com_to_parseURL[WRITE], results, strlen(results));
     write(com_to_parseURL[WRITE], term, strlen(term));
@@ -71,8 +71,9 @@ int main(int argc, char* argv[]){
     free(results);
 
     // print the output
-    printf("Read from the parser: %s\n", stuff);
+    print_urls(stuff, return_len);
     fflush(stdout);
+
   } else{         // Child process
     // redirect pipes to stdin and stdout
     Dup2(com_to_parseURL[READ], STDIN_FILENO);
@@ -83,7 +84,7 @@ int main(int argc, char* argv[]){
     close(com_from_parseURL[READ]);
 
     // begin the parsing process
-    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "parseURL2.py", (char *)NULL);
+    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "parseURL.py", (char *)NULL);
   }
   //}
   
@@ -96,6 +97,32 @@ int main(int argc, char* argv[]){
     kill(pid_parseURL, 7);
   }
   return 1;
+}
+
+void print_urls(char *urls, ssize_t size){
+  FILE *in_urls = fmemopen(urls, size, "r");
+  
+  char host[512];
+  char path[2048];
+
+  char *host_return;
+  char *path_return;
+
+  host_return = fgets(host, sizeof(host), in_urls);
+  path_return = fgets(path, sizeof(path), in_urls);
+
+  host[strlen(host) - 1] = '\0';
+  path[strlen(path) - 1] = '\0';
+
+  while( host_return != NULL && path_return != NULL ){
+    printf("%s%s\n", host, path);
+
+    host_return = fgets(host, sizeof(host), in_urls);
+    path_return = fgets(path, sizeof(path), in_urls);
+
+    host[strlen(host) - 1] = '\0';
+    path[strlen(path) - 1] = '\0';
+  }
 }
 
 int Fork(void)
