@@ -1,6 +1,5 @@
 Greg Shrock, Michael Hammer, and Adenuga Joan
 
-Approach:
 Our team decided to use a divide and conquer approach to develop a solution to phase one. Michael was given the task of being able to extract URLs from a line of html.Greg was tasked with creating funcitons to receive a web page. Adenuga was in charge of writing the over arching program that requested files and extracted their URLs. After we all developed our individual parts, we came together and implemented them into our solution. 
 
 The main program uses C. It able to request a web page, using Greg's functions, and then parse URLs from it by using Michael's URL parser. After recieving the text from a webpage, the program creates a chlid process. The child process then executes the parser program. The text is sent to the parser by the parent process by a pipe. Likewise the parser sends the extracted URLs to the parent by using a pipe. We implemented this by changing the child process' stdin to be the read end of one pipe and the child process' stdout to be the write end of the other pipe. Once the parent processes finishes writing the file, it sends a terminating string which tells the parsing program that it is done. After receiving all URLs the main program prints. 
@@ -9,12 +8,7 @@ The program which retreived the webpage was based off code provided to us.
 
 We decided to write the parsing program in Python. The program first reads from standard input to retreive lines of html code. It then uses regular expressions to lacate and extract all URLs. For each URL found the program determines the path and converts it from a relative path to an absolute path. Once all URLs have been located and converted they are all written to standard output as one string.
 
-While developing our solution we encountered various problems. First, we 
+While developing our solution we encountered various problems. To start, we encountered problems from redirecting pipes to communicate with our processes. Making sure the correct pipe was connected to our process' standard input and standard output was challenging enough. We ran into problems where the pipes were not be redirected to the correct sources (stdin or stdout) and that we would be writing or reading from the wrong end of the pipe. In addition, redirecting the pipes made it harder to analyze our child process. We could no longer simply use print statements to check values because standard ouput was connected to the pipe. Instead we resorted to writing to files in order to see values or running pieces of code separately in other programs. Another problem we encountered was errors in code other than the main program. When we ran the main program and a child process or another program contained an error, it was difficult to decipher the problem. Finally, we struggled with creating a regular expression that would find all absolute and relative paths. At first our expression was only able to find absolute paths, but after using a "trial and error" technique we were able to develop an expression that passed the test files.  
 
 
 
-
-Difficulties:
-- directing the output and intputs of processes into stdin and stdout
-- creating a working regular expression
- 
