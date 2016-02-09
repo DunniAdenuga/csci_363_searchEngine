@@ -57,8 +57,10 @@ int main(int argc, char* argv[]){
     char *term = "\nterminate\n";
     //strcpy(results, "hello world!");
     //printf("Str_len: %d\n", (int)strlen(results) );
+
     printf("The host: %s\n", initial_host);
     write(com_to_parseURL[WRITE], host, strlen(host));
+
     write(com_to_parseURL[WRITE], results, strlen(results));
     write(com_to_parseURL[WRITE], term, strlen(term));
  
@@ -89,7 +91,7 @@ int main(int argc, char* argv[]){
   close(com_to_parseURL[READ]);
 
   sleep(3);
-  printf("After sleep: %d\n", pid_parseURL);
+
   if(pid_parseURL > 0){
     kill(pid_parseURL, 7);
   }
