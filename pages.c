@@ -32,7 +32,7 @@ int main(int argc, char* argv[]){
 
   char* results;
   char* stuff;
-  int msg_len;
+  //int msg_len;
 
   char *initial_host = argv[1];       //first page to start search from
   char *initial_path = argv[2];       //first page to start search from
@@ -53,6 +53,9 @@ int main(int argc, char* argv[]){
     char *term = "\nterminate\n";
     //strcpy(results, "hello world!");
     //printf("Str_len: %d\n", (int)strlen(results) );
+    write(com_to_parseURL[WRITE], initial_host, strlen(initial_host));
+    write(com_to_parseURL[WRITE], "\n", 1);
+
     write(com_to_parseURL[WRITE], results, strlen(results));
     write(com_to_parseURL[WRITE], term, strlen(term));
  
@@ -83,7 +86,7 @@ int main(int argc, char* argv[]){
   close(com_to_parseURL[READ]);
 
   sleep(3);
-  printf("After sleep: %d\n", pid_parseURL);
+
   if(pid_parseURL > 0){
     kill(pid_parseURL, 7);
   }
