@@ -3,7 +3,8 @@ import re
 import sys
 
 def parse(line):
-  regEx = '(<a.+?href=(".+?//.+?"|\'.+?//.+?\').*?>)'
+  regEx = '(<a.+?href=("https?://.+?"|\'.+?//.+?\').*?>)'
+  #regEx = '(https?://)?([\da-z\.-]+)\.([a-z\.]{2,6})([/\w \.-]*)*/?'
   p = re.compile(regEx)
   output = ""
   for group in p.findall(line):
@@ -26,10 +27,7 @@ def parse(line):
         else:
           absUrl = relUrl[urlLen-i] + "/" + absUrl
 
-    f = open("something.txt", 'a')
-    print(host+absUrl, file=f)
-    f.close()
-    output = output +host+absUrl+"\n"
+    output = output+host+absUrl+"\n"
   sys.stdout.write(output)
 
 
@@ -37,9 +35,9 @@ def parse(line):
   #Read line in and find any URLs it contains
 line = ""
 l = ""
+abs_path = sys.stdin.readline()
 while(l != 'terminate\n'):
   line = line + l
-    #  l = sys.stdin.readline()
   l = sys.stdin.readline()
 parse(line)  
 #sys.stdout.write(l)
