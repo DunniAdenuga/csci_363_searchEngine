@@ -3,13 +3,10 @@ import re
 import sys
 
 def parse(line):
-  regEx = '(<a.+?href=("https?://.+?"|\'.+?//.+?\').*?>)'
-  #regEx = '(https?://)?([\da-z\.-]+)\.([a-z\.]{2,6})([/\w \.-]*)*/?'
+  regEx = '(<a.*? href=(".+?https?://[\da-z\.-]+\.[a-z\.]{2,6}[/\w \.-]*"|\'.+?://.+?\').*?>)'
   p = re.compile(regEx)
   output = ""
   for group in p.findall(line):
-    #Convert relative URL to absolute URL
-    #print("REL URL = " + group[0]);
     relUrl = group[1].split("/")
     host = relUrl[0]+"//"+relUrl[2]+"/"
     relUrl = relUrl[3:]
@@ -26,21 +23,14 @@ def parse(line):
           pass
         else:
           absUrl = relUrl[urlLen-i] + "/" + absUrl
-
-    output = output+host+absUrl+"\n"
+    output = output +host+absUrl+"\n"
   sys.stdout.write(output)
 
 
-#while(True):
-  #Read line in and find any URLs it contains
-line = ""
-l = ""
-abs_path = sys.stdin.readline()
-while(l != 'terminate\n'):
-  line = line + l
-  l = sys.stdin.readline()
-parse(line)  
-#sys.stdout.write(l)
-#sys.stdout.write("%d" , len(line));
-#sys.stdout.write(line)
-
+while(True):
+  line = ""
+  l = ""
+  while(l != 'terminate\n'):
+    line = line + l
+    l = sys.stdin.readline()
+  parse(line)  

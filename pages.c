@@ -32,11 +32,15 @@ int main(int argc, char* argv[]){
 
   char* results;
   char* stuff;
-  //int msg_len;
 
   char *initial_host = argv[1];       //first page to start search from
   char *initial_path = argv[2];       //first page to start search from
-  
+ 
+  //char host[strlen(initial_host)];
+  //memcpy(host, initial_path,
+ 
+  char * host = "www.MICHAEL.edu";
+
   results = get_page(initial_host, initial_path);
 
   //while(results != NULL){                  // used for multiple pages
@@ -53,8 +57,9 @@ int main(int argc, char* argv[]){
     char *term = "\nterminate\n";
     //strcpy(results, "hello world!");
     //printf("Str_len: %d\n", (int)strlen(results) );
-    write(com_to_parseURL[WRITE], initial_host, strlen(initial_host));
-    write(com_to_parseURL[WRITE], "\n", 1);
+
+    printf("The host: %s\n", initial_host);
+    write(com_to_parseURL[WRITE], host, strlen(host));
 
     write(com_to_parseURL[WRITE], results, strlen(results));
     write(com_to_parseURL[WRITE], term, strlen(term));
@@ -78,7 +83,7 @@ int main(int argc, char* argv[]){
     close(com_from_parseURL[READ]);
 
     // begin the parsing process
-    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "parseURL.py", (char *)NULL);
+    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "parseURL2.py", (char *)NULL);
   }
   //}
   
