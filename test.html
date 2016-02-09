@@ -1,0 +1,52 @@
+d>
+<title>Relative URL Test Page</title>
+</head>
+<body>
+<center>
+<h2>A collection of relative URLs and their corresponding absolute ones</h2>
+</center>
+
+<p>Assme the base URL is &lt;http://www.bucknell.edu/home/dir/level3/file.html&gt;, the following is a list of relative URLs and their corresponding absolute one.</p>
+
+<url>
+  <li> <a href = "http://www.bucknell.edu/home/dir/level3/file.html">
+http://www.bucknell.edu/home/dir/level3/file.html</a>
+======== http://www.bucknell.edu/home/dir/level3/file.html</li>
+
+  <li> <a href = "http://cnn.com:90//testpages/grading.html">
+http://cnn.com:90//testpages/grading.html</a>
+======== http://cnn.com:90//testpages/grading.html</li>
+
+  <li> <a href = "http://cnn.com:80//testpages/grading.html">
+http://cnn.com:80//testpages/grading.html</a>
+======== http://cnn.com:80//testpages/grading.html</li>
+
+  <li> <a href = "http://cnn.com/level0/./testpages/../level1/lelve2/../../grading.html">http://cnn.com/level0/./testpages/../level1/lelve2/../../grading.html</a>
+======== http://cnn.com/level0/grading.html</li>
+
+  <li> <a href = "../testpages/level2/../level3/grading.html">
+../testpages/level2/../level3/grading.html</a>
+======== http://www.bucknell.edu/home/dir/testpages/level3/grading.html</li>
+
+  <li> <a href = "../testpages/level2/../level3/.././grading.html#abc">
+../testpages/level2/../level3/.././grading.html#abc</a>
+======== http://www.bucknell.edu/home/dir/testpages/grading.html#abc</li>
+
+  <li> <a href = "../grading.html#abc">
+../grading.html#abc</a>
+======== http://www.bucknell.edu/home/dir/grading.html#abc</li>
+
+  <li> <a href = "grading.html#abc">
+grading.html#abc</a>
+======== http://www.bucknell.edu/home/dir/level3/grading.html</li>
+
+  <li> <a href = "/grading.html#abc">/grading.html#abc</a>
+======== http://www.bucknell.edu/grading.html#abc</li>
+
+  <li> <a href  = "../testpages/level1/level2/../level3/grading.html">
+../testpages/level1/level2/../level3/grading.html</a>
+======== http://www.bucknell.edu/home/dir/testpages/level1/level3/grading.html</li>
+</ul>
+
+</body>
+</html>
