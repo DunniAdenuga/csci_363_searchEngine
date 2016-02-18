@@ -1,0 +1,49 @@
+#include "stdio.h"
+ #include <sys/types.h>
+ #include <sys/stat.h>
+ #include <fcntl.h>
+ #include "dlist.h"
+ #include "dnode.h"
+
+
+FILE *fd; //file descriptor of file that stores content of word-page
+struct dlist* stopWordList = dlist_create();
+struct dlist* listOfWords = dlist_create();
+
+void putWordsinList(void){
+  char oneword[100];
+  fd = fopen("something.txt", "r");
+  do {
+      c = fscanf(fp1,"%s",oneword); /* got one word from the file */
+      dlist_add_back(listOfWords, oneword);
+   } while (c != EOF);              /* repeat until EOF           */
+
+   fclose(fd);
+}
+
+void searchQuery(char* target){
+
+
+}
+
+void createStopList(void){
+  char oneword[100];
+  fd = fopen("stop-word.txt", "r");
+  do {
+      c = fscanf(fp1,"%s",oneword); /* got one word from the file */
+      dlist_add_back(stopWordList, oneword);
+   } while (c != EOF);              /* repeat until EOF           */
+
+   fclose(fd);
+}
+bool searchStopList(char* word){
+  if(strcmp(word, dlist_iter_begin(stopWordList)) == 0){
+    return true;
+  }
+  while(dlist_iter_has_next(stopWordList) != false){
+    if(strcmp(word, dlist_iter_next(stopWordList)) == 0){
+    return true;
+  }
+  }
+  return false;
+}
