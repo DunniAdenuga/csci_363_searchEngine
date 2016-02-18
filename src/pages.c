@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){
   int com_from_parseURL[2];      // pipe from parseURL
 
   if(argc < 3){
-    printf("USAGE: ./pages <PAGE_HOST> <PAGE_PATH\n");
+    printf("USAGE: ./pages <PAGE_HOST> <PAGE_PATH>\n");
     exit(1);
   }
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]){
     close(com_from_parseURL[READ]);
 
     // begin the parsing process
-    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "parseURL.py", (char *)NULL);
+    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "python/parseURL.py", (char *)NULL);
   }
   //}
   
