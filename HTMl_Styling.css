@@ -1,0 +1,47 @@
+body {
+	text-align: center;
+	padding: 0;
+	margin: 0;
+	background-color: #EDEDED;
+}
+.header {
+	text-align: center;
+	background-color: #315ACC;
+	color: #1D367A;
+	font-family: arial;
+	padding: 5px 0px 5px 0px;
+	cursor: default;
+}
+.textBox {
+	width: 75%;
+	height: 30px;
+	font-size: 25px;
+	border-radius: 5px;
+}
+.submitRow {
+	
+}
+.title {
+	font-size: 60px;
+	font-family: impact;
+	cursor: default;
+}
+.submitBtn {
+	display: inline-block;
+	width: 50px;
+	height: 30px;
+	background-color: #315ACC;
+	color: #7094E0;
+	font-family: arial;
+	border: 2px solid #1D367A;
+	border-radius: 5px;
+	padding: 3px 3px 3px 3px;
+}
+.submitBtn:active {
+	background-color: #315ACC;
+	color: #315ACC;
+	border: 2px solid #1D367A;
+}
+.submitBtn:hover {
+	cursor: pointer;
+}
