@@ -80,3 +80,7 @@ void sortListOfWords(void){
     sortListOfWords();
     return searchQuery(query);
   }
+
+int main(){
+  printf(dotheWork());
+}
