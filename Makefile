@@ -1,24 +1,42 @@
-CC = gcc
-CRAWLEROBJS = crawler.o tcplib.o test_crawler.o
-PAGEOBJS = crawler.o tcplib.o pages.o
 
-OBJS = $(CRAWLEROBJS) $(PAGEOBJS)
-CFLAGS = -Wall -g
-LFLAGS = 
+CC = gcc -I ./include
+CFLAGS = -std=gnu99 -Wall -g #-DDEBUG
+
+INC = ./include
+SRC = ./src
+OBJ = ./obj
+DOC = ./doc
+BIN = ./bin
+
+vpath %.h ./include
+vpath %.c ./src
+
+CRAWLEROBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/test_crawler.o
+PAGEOBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/pages.o
 
 EXECS = test_crawler pages
 
 all: $(EXECS)
 
-%.o: &.c
-	$(CC) -c $(CFLAGS) $<
+doc:
+	doxygen
+
+# build all object files
+$(OBJ)/%.o: %.c
+	$(CC) $< $(CFLAGS) -c -o $@
 
 test_crawler: $(CRAWLEROBJS)
-	$(CC) -o $@ $(LFLAGS) $(CRAWLEROBJS)
-
+	$(CC) -o $(BIN)/$@ $(LFLAGS) $(CRAWLEROBJS)
 
 pages: $(PAGEOBJS)
-	$(CC) -o $@ $(LGLAGS) $(PAGEOBJS)
+	$(CC) -o $(BIN)/$@ $(LFLAGS) $(PAGEOBJS)
 
+
+.PHONY: clean
 clean:
-	/bin/rm -f $(OBJS) $(EXECS) core* *~
+	/bin/rm -rf $(BIN)/* $(OBJ)/* core* *~
+
+cleanswap:
+	/bin/rm -f \.*swp
+	/bin/rm -f /src/\.*swp
+
