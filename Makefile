@@ -13,8 +13,9 @@ vpath %.c ./src
 
 CRAWLEROBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/test_crawler.o
 PAGEOBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/pages.o
+SERVEROBJS = $(OBJ)/webserver.o $(OBJ)/tcplib.o $(OBJ)/send_eof.o $(OBJ)/readln.o
 
-EXECS = test_crawler pages
+EXECS = test_crawler pages webserver
 
 all: $(EXECS)
 
@@ -30,6 +31,9 @@ test_crawler: $(CRAWLEROBJS)
 
 pages: $(PAGEOBJS)
 	$(CC) -o $(BIN)/$@ $(LFLAGS) $(PAGEOBJS)
+
+webserver: $(SERVEROBJS)
+	$(CC) -o $(BIN)/$@ $(LFLAGS) $(SERVEROBJS)
 
 
 .PHONY: clean
