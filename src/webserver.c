@@ -51,7 +51,7 @@ void	  send_head(int, int, int, char*);
 int     send_file(int, char*);
 
 // file operations
-int     read_file(char*, char*);
+int     check_file_status(char * fname);
 int     get_file_size(char*);
 char*   get_file_data(char*);
 
@@ -226,6 +226,8 @@ int get_content_length(char * header)  {
  */
 void process_post(int conn, char * header) {
 
+  printf("Header:\n%s\n", header);
+
   int  n;
   char buff[4*BUFFSIZE];    // assume the form is no longer than this
   char name[BUFFSIZE], value[BUFFSIZE];
@@ -310,54 +312,23 @@ char *get_response_type(char *filename) {
  *---------------------------------------------------
  */
 void
-process_head(char * path, int conn) {
+process_head(char * fname, int conn) {
+  char *response_type;
+  int fsize;
+  int fstatus = check_file_status(fname);
 
-  //int           n;                // read-write size
-  //int           fstatus;          // file status
-  //char          * fname = path;   // the file name
-  //char          * fext;           // the file extension
-  //char          * response_type;  // the type of the response
-  //int           ftype;            // file type
-  //int           fsize;            // file size
+  if (fstatus == READBLE) {      // Good file
+    response_type = get_response_type(fname);
+    fsize = get_file_size(fname);
+    send_head(conn, 200, fsize, response_type);
+  } else if (fstatus == NONEXST) {    // Does not exist
+    send_head(conn, 404, strlen(ERROR_404), "text/html");
+  } else if (fstatus == NONREAD) {    // Permission denied
+    send_head(conn, 403, strlen(ERROR_403), "text/html");
+  } else {                            // Internal server error
+    send_head(conn, 500, strlen(ERROR_500), "text/html");
+  }
 
-  // used for time page
-  //char          buff[BUFFSIZE];
-  //char          *timestr;
-  //struct        timeval tv;
-
-
-  // test for special files
-  //if( strcmp(fname, "/") == 0){                     // default page
-    //send_head(conn, 200, strlen(HOME_PAGE), "text/html");
-    //(void) send_eof(conn); 
-    //return;
-  //} else if (strcmp(fname, "/moved.html") == 0) {   // moved page
-    //send_head(conn, 301, strlen(ERROR_301), "text/html");
-    //(void) send_eof(conn); 
-    //return;
-  //} else if (strcmp(fname, "/time") == 0) {         // time page
-    //gettimeofday(&tv, NULL);
-    //timestr = ctime(&tv.tv_sec);
-    //(void) sprintf(buff, TIME_PAGE, timestr);
-    //send_head(conn, 200, strlen(buff), "text/html");
-    //(void) send_eof(conn); 
-    //return;
-  //}
-
-  //fname++;    // remove leading slash
-  //fstatus = check_file_status(fname);
-
-  //if (fstatus == READBLE) {      // Good file
-    //response_type = get_response_type(fname);
-    //fsize = get_file_size(fname);
-    //send_head(conn, 200, fsize, response_type);
-  //} else if (fstatus == NONEXST) {    // Does not exist
-    //send_head(conn, 404, strlen(ERROR_404), "text/html");
-  //} else if (fstatus == NONREAD) {    // Permission denied
-    //send_head(conn, 403, strlen(ERROR_403), "text/html");
-  //} else {                            // Internal server error
-    //send_head(conn, 500, strlen(ERROR_500), "text/html");
-  //}
   (void) send_eof(conn);
 }
 
@@ -373,62 +344,12 @@ process_head(char * path, int conn) {
  */
 void
 process_get(char * path, int conn) {
-
-  //char          data[FILESIZE]; /* file content, such as JLH.jpg photo */
-  //char          buff[BUFFSIZE];
-  //int           n;             /* read/write size */
-  //char		*timestr;
-  //struct timeval	tv;
-  //int           fstatus;  // file status
-
   /* send the requested web page or any error message */
   if (strcmp(path, "/") == 0) {
     send_file(conn, "web/Shmoogle.html");
   }else {
     send_file(conn, path + 1);
-    //send_head(conn, 200, strlen(HOME_PAGE), "text/html");
-    //(void) send(conn, HOME_PAGE, strlen(HOME_PAGE), 0);
-  //} else if (strcmp(path, "/default.html") == 0) {
-    //n = read_file("default.html", data);
-    //send_head(conn, 200, n, "text/html");
-    //(void) send(conn, data, n, 0);
-  //} else if (strcmp(path, "/time") == 0) {
-    //gettimeofday(&tv, NULL);
-    //timestr = ctime(&tv.tv_sec);
-    //(void) sprintf(buff, TIME_PAGE, timestr);
-    //send_head(conn, 200, strlen(buff), "text/html");
-    //(void) send(conn, buff, strlen(buff), 0);
-  //} else if (strcmp(path, "/moved.html") == 0) {
-    //send_head(conn, 301, strlen(ERROR_301), "text/html");
-    //(void) send(conn, ERROR_301, strlen(ERROR_301), 0);
-  //} else if (strcmp(path, "/JLH.jpg") == 0 || 
-      //strcmp(path, "/form.html") == 0) {
-    ///* request one of the two files */
-    //char * fname = path;
-    //fname++; // moveover the leading '/'
-    //fstatus = check_file_status(fname);
-    //if (fstatus == READBLE) {        // ok
-      //n = read_file(fname, data);
-      //if (strcmp(path, "/JLH.jpg") == 0)  // the image file
-        //send_head(conn, 200, n, "image/jpeg");
-      //else                                // the form.html, html file
-        //send_head(conn, 200, n, "text/html");
-      //(void) send(conn, data, n, 0);
-    //} else if (fstatus == NONEXST) {   // not found
-      //send_head(conn, 404, strlen(ERROR_404), "text/html");
-      //(void) send(conn, ERROR_404, strlen(ERROR_404), 0);
-    //} else if (fstatus == NONREAD) { // forbidden
-      //send_head(conn, 403, strlen(ERROR_403), "text/html");
-      //(void) send(conn, ERROR_403, strlen(ERROR_403), 0);
-    //} else {
-      //send_head(conn, 500, strlen(ERROR_500), "text/html");
-      //(void) send(conn, ERROR_500, strlen(ERROR_500), 0);
-    //}
-  } //else { /* not found */
-    //printf("Could not find: %s\n", path);
-    //send_head(conn, 404, strlen(ERROR_404), "text/html");
-    //(void) send(conn, ERROR_404, strlen(ERROR_404), 0);
-  //}
+  }
 }
 
 /*-----------------------------------------------------------------------
@@ -507,24 +428,6 @@ send_head(int conn, int stat, int len, char * type)
 
   (void) sprintf(buff, "\n");
   (void) send(conn, buff, strlen(buff), 0);
-}
-
-/*-----------------------------------------------------------------------
- * read_file: read content of given file name, pass back the buff
- *-----------------------------------------------------------------------
- */
-  int
-read_file(char * fname, char buff[FILESIZE])
-{
-  FILE * f = fopen(fname, "r");
-
-  int size_read = fread(buff, 1, FILESIZE-1, f);
-  if (size_read > 0) {
-    buff[size_read] = 0;
-  }
-  fclose(f);
-
-  return size_read;
 }
 
 /*-----------------------------------------------------------------------
@@ -615,22 +518,22 @@ int send_file(int conn, char *fname) {
   if (fstatus == READBLE) {      // Good file
     response_type = get_response_type(fname);
     fsize = get_file_size(fname);
+
     send_head(conn, 200, fsize, response_type);
+    char *file = get_file_data(fname);
+
+    send(conn, file, strlen(file), 0);
+    free(file);
   } else if (fstatus == NONEXST) {    // Does not exist
     send_head(conn, 404, strlen(ERROR_404), "text/html");
+    send(conn, ERROR_404, strlen(ERROR_404), 0);
   } else if (fstatus == NONREAD) {    // Permission denied
     send_head(conn, 403, strlen(ERROR_403), "text/html");
+    send(conn, ERROR_403, strlen(ERROR_403), 0);
   } else {                            // Internal server error
     send_head(conn, 500, strlen(ERROR_500), "text/html");
+    send(conn, ERROR_500, strlen(ERROR_500), 0);
   }
 
-  char *file = get_file_data(fname);
-
-  printf("File Status: %d\n", fstatus);
-  printf("File:\n\n%s\n", file);
-
-  (void) send(conn, file, strlen(file), 0);
-
-  free(file);
   return 0;
 }
