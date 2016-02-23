@@ -9,8 +9,7 @@ htmlTail = "</div></body></html>"
 links = ""
 l = ""
 while(l != 'terminate\n'):
-  links = links + l
+  links = links + '<a href="'+l+'">'+l+'</a>'
   l = sys.stdin.readline()
 
-f = open("linkPage.html",'w')
-f.write(htmlCap+links+htmlTail)
+sys.write(htmlCap+links+htmlTail)
