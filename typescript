@@ -1,0 +1,33 @@
+Script started on Tue 23 Feb 2016 10:46:24 AM EST
+[xmeng@polaris ProjectSchrock]$ make clean
+/bin/rm -rf ./bin/* ./obj/* core* *~
+[xmeng@polaris ProjectSchrock]$ make
+gcc -I ./include ./src/crawler.c -std=gnu99 -Wall -g  -c -o obj/crawler.o
+./src/crawler.c: In function ‘get_response’:
+./src/crawler.c:69: warning: type of ‘sock_fd’ defaults to ‘int’
+gcc -I ./include ./src/tcplib.c -std=gnu99 -Wall -g  -c -o obj/tcplib.o
+gcc -I ./include ./src/test_crawler.c -std=gnu99 -Wall -g  -c -o obj/test_crawler.o
+gcc -I ./include -o ./bin/test_crawler  ./obj/crawler.o ./obj/tcplib.o ./obj/test_crawler.o
+gcc -I ./include ./src/pages.c -std=gnu99 -Wall -g  -c -o obj/pages.o
+gcc -I ./include -o ./bin/pages  ./obj/crawler.o ./obj/tcplib.o ./obj/pages.o
+gcc -I ./include ./src/webserver.c -std=gnu99 -Wall -g  -c -o obj/webserver.o
+./src/webserver.c:34:65: error: http_response.h: No such file or directory
+./src/webserver.c: In function ‘main’:
+./src/webserver.c:128: error: ‘ERROR_400’ undeclared (first use in this function)
+./src/webserver.c:128: error: (Each undeclared identifier is reported only once
+./src/webserver.c:128: error: for each function it appears in.)
+./src/webserver.c: In function ‘process_post’:
+./src/webserver.c:242: error: ‘ERROR_404’ undeclared (first use in this function)
+./src/webserver.c: In function ‘process_head’:
+./src/webserver.c:325: error: ‘ERROR_404’ undeclared (first use in this function)
+./src/webserver.c:327: error: ‘ERROR_403’ undeclared (first use in this function)
+./src/webserver.c:329: error: ‘ERROR_500’ undeclared (first use in this function)
+./src/webserver.c: In function ‘send_file’:
+./src/webserver.c:528: error: ‘ERROR_404’ undeclared (first use in this function)
+./src/webserver.c:531: error: ‘ERROR_403’ undeclared (first use in this function)
+./src/webserver.c:534: error: ‘ERROR_500’ undeclared (first use in this function)
+make: *** [obj/webserver.o] Error 1
+[xmeng@polaris ProjectSchrock]$ exit
+exit
+
+Script done on Tue 23 Feb 2016 10:46:31 AM EST
