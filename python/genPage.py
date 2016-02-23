@@ -11,7 +11,7 @@ l = ""
 while(l != 'terminate\n'):
   if(l!=""):
     l = l[:-1]
-    links = links + '<a href="'+l+'">'+l+'</a>'
+    links = links + '<a href="'+l+'">'+l+'</a><br>'
   l = sys.stdin.readline()
 
 page = htmlCap+links+htmlTail
