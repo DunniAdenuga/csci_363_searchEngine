@@ -19,7 +19,8 @@ should compile the program without error.
 
 The compiled programs are placed into the `bin` directory. The program for
 phase 1 is `pages`. To run a demonstration of the program on some example pages, 
-execute one or more of the commands below.
+execute one or more of the commands below. The commands consist of the program, 
+the desired host, and the path to the file being requested from the host.
 
 ```
 $ ./bin/pages www.eg.bucknell.edu /~xmeng/testpages/index.html
