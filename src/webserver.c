@@ -37,6 +37,8 @@
 #define NONREAD 0
 #define READBLE 1
 
+#define READ  0
+#define WRITE 1
 
 #define BUFFSIZE	      256
 #define FILESIZE        65536*16
@@ -60,6 +62,10 @@ int     is_valid_http_req(char*, char*);
 void    process_post(int, char*);
 void    process_get(char*, int);
 void    process_head(char*, int);
+
+// parsing and response functions
+int getUrls(char *value, char** urls);
+char *getPostResponse(int urlCount, char** urls);
 
 
 /*-----------------------------------------------------------------------
@@ -232,8 +238,6 @@ void process_post(int conn, char * header) {
   char buff[4*BUFFSIZE];    // assume the form is no longer than this
   char name[BUFFSIZE], value[BUFFSIZE];
   // for the name/value pair
-  char retContent[4*BUFFSIZE];
-  // returning html page
 
   // extract the integer representing the content length
   int contentLength = get_content_length(header);
@@ -255,6 +259,7 @@ void process_post(int conn, char * header) {
   n = strlen(buff) - strlen(assign);
   strncpy(name, buff, n);
   name[n] = 0;
+
   // then look for '&'
   char * amp = strstr(buff, "&");
   n = strlen(assign) - strlen(amp);
@@ -262,20 +267,16 @@ void process_post(int conn, char * header) {
   value[n] = 0;
 
   // build HTML code for display
-  strcpy(retContent, "<dl compact>\n");
-  strcat(retContent, "<dt><b>");
-  strcat(retContent, name);
-  strcat(retContent, "</b> <dd>:<i> ");
-  strcat(retContent, value);
-  strcat(retContent, "</i>:<br>\n");
-  strcat(retContent, "</dl>\n");
+  char** urls = NULL;
+  int urlCount = getUrls(value, urls);
+  char *response = getPostResponse(urlCount, urls);
 
   // return the header first
-  n = strlen(retContent);
+  n = strlen(response);
   send_head(conn, 200, n, "text/html");
 
   // return the contents
-  (void) send(conn, retContent, n, 0);
+  send(conn, response, n, 0);
 }
 
 char *get_file_ext(char *filename) {
@@ -524,7 +525,7 @@ int send_file(int conn, char *fname) {
 
     send(conn, file, strlen(file), 0);
     free(file);
-  } else if (fstatus == NONEXST) {    // Does not exist
+  } else if (fstatus == NONEXST) {    // Does not
     send_head(conn, 404, strlen(ERROR_404), "text/html");
     send(conn, ERROR_404, strlen(ERROR_404), 0);
   } else if (fstatus == NONREAD) {    // Permission denied
@@ -536,4 +537,64 @@ int send_file(int conn, char *fname) {
   }
 
   return 0;
+}
+
+int getUrls(char* value, char** urls){
+  urls = malloc(sizeof(char *));
+  urls[0] = "www.bucknell.edu";
+  return 0;
+}
+
+char *getPostResponse(int urlCount, char** urls){
+  char *page;
+
+  int srv_to_gen[2];
+  int gen_to_srv[2];
+
+  pipe(srv_to_gen);                     //create a pipe
+  pipe(gen_to_srv);                   //create a pipe
+  int pid = fork();
+
+  if(pid > 0){    // parent process
+    // close unwanted ends of pipes
+    close(srv_to_gen[READ]);
+    close(gen_to_srv[WRITE]);
+
+    // write to and read results from child
+    char *term = "\nterminate\n";
+  
+    // write the urls to the generator
+    int i;
+    for(i = 0; i < urlCount; i++){
+      write(srv_to_gen[WRITE], urls[i], strlen(urls[i]));
+      write(srv_to_gen[WRITE], "\n", 1);
+    }
+
+    // terminate the generator
+    write(srv_to_gen[WRITE], term, strlen(term));
+
+    // read the file length
+    int len;
+    FILE* fp = fdopen(gen_to_srv[READ], "r");
+    scanf("%d\n", &len);
+
+    page = malloc(len+1);
+    fread(page, len, 1, fp);
+
+    page[len + 1] = '\0';
+
+  } else{         // Child process
+    // redirect pipes to stdin and stdout
+    dup2(srv_to_gen[READ], STDIN_FILENO);
+    dup2(gen_to_srv[WRITE], STDOUT_FILENO);
+
+    // close unneeded pipes (all of them)
+    close(srv_to_gen[WRITE]);
+    close(gen_to_srv[READ]);
+
+    // begin the parsing process
+    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "python/genPage.py", (char *)NULL);
+  }
+
+  return page;
 }
