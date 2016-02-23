@@ -66,7 +66,7 @@ int make_request(char *host, char *path, char *svc)
 }
 
 // get the response of a server connected on the provided socket fd
-char *get_response(sock_fd){
+char *get_response(int sock_fd){
   char *out_buff[2048];
   int i; 
   int len;
