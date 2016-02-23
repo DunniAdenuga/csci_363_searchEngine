@@ -9,7 +9,11 @@ htmlTail = "</div></body></html>"
 links = ""
 l = ""
 while(l != 'terminate\n'):
-  links = links + '<a href="'+l+'">'+l+'</a>'
+  if(l!=""):
+    l = l[:-1]
+    links = links + '<a href="'+l+'">'+l+'</a>'
   l = sys.stdin.readline()
 
-sys.write(htmlCap+links+htmlTail)
+page = htmlCap+links+htmlTail
+sys.stdout.write(str(len(page)))
+sys.stdout.write(page) 
