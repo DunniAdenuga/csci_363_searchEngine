@@ -64,7 +64,7 @@ void    process_get(char*, int);
 void    process_head(char*, int);
 
 // parsing and response functions
-int getUrls(char *value, char** urls);
+int getUrls(char *value, char* urls[]);
 char *getPostResponse(int urlCount, char** urls);
 
 
@@ -267,7 +267,7 @@ void process_post(int conn, char * header) {
   value[n] = 0;
 
   // build HTML code for display
-  char** urls = NULL;
+  char* urls[1];
   int urlCount = getUrls(value, urls);
   char *response = getPostResponse(urlCount, urls);
 
@@ -539,10 +539,10 @@ int send_file(int conn, char *fname) {
   return 0;
 }
 
-int getUrls(char* value, char** urls){
-  urls = malloc(sizeof(char *));
-  urls[0] = "www.bucknell.edu";
-  return 0;
+int getUrls(char* value, char* urls[]){
+  urls[0] = malloc(80);
+  strcpy(urls[0], "http://www.bucknell.edu");
+  return 1;
 }
 
 char *getPostResponse(int urlCount, char** urls){
@@ -575,8 +575,11 @@ char *getPostResponse(int urlCount, char** urls){
 
     // read the file length
     int len;
+    char *len_buff = malloc(20);
+    size_t n_bytes = 20;
     FILE* fp = fdopen(gen_to_srv[READ], "r");
-    scanf("%d\n", &len);
+    getline(&len_buff, &n_bytes, fp);
+    len = atoi(len_buff);
 
     page = malloc(len+1);
     fread(page, len, 1, fp);
