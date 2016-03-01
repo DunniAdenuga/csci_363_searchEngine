@@ -1,33 +1,24 @@
+CC = gcc
+CFLAGS = -std=c99 -Wall -g #-DDEBUG
 
-CC = gcc -I ./include
-CFLAGS = -std=gnu99 -Wall -g #-DDEBUG
 
-INC = ./include
-SRC = ./src
-OBJ = ./obj
-DOC = ./doc
-BIN = ./bin
-
-vpath %.h ./include
-vpath %.c ./src
-
-EXECS = dlisttest
+EXECS = dlisttest queryFinder
 
 all: $(EXECS)
 
-doc:
-	doxygen
 
-$(OBJ)/dnode.o: dnode.h dnode.c
-	$(CC) $(CFLAGS) -c $(SRC)/dnode.c -o $(OBJ)/dnode.o
+dnode.o: dnode.h dnode.c
+	$(CC) $(CFLAGS) -c dnode.c -o dnode.o
 
-$(OBJ)/dlist.o: dlist.h dlist.c dnode.h
-	$(CC) $(CFLAGS) -c $(SRC)/dlist.c -o $(OBJ)/dlist.o
+dlist.o: dlist.h dlist.c dnode.h
+	$(CC) $(CFLAGS) -c dlist.c -o dlist.o
 
-dlisttest: $(SRC)/dlisttest.c $(OBJ)/dnode.o $(OBJ)/dlist.o
-	$(CC) $(CFLAGS) $(OBJ)/dnode.o $(OBJ)/dlist.o $(SRC)/dlisttest.c -o $(BIN)/dlisttest
+dlisttest: dlisttest.c dnode.o dlist.o
+	$(CC) $(CFLAGS) dnode.o dlist.o dlisttest.c -o dlisttest
 
-.PHONY: clean
+queryFinder: queryFinder.c dnode.o dlist.o
+	$(CC) $(CFLAGS) dnode.o dlist.o queryFinder.c -o queryFinder
+
 clean:
-	/bin/rm -rf $(BIN)/* $(OBJ)/* core* *~
+	/bin/rm -f dnode.o dlist.o $(EXECS) core* *~ semantic.cache
 
