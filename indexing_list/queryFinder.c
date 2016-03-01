@@ -6,18 +6,29 @@
  #include "dnode.h"
 #include<string.h>
 #include<stdlib.h>
+void putWordsinList(void);
+bool searchQuery(char* target);
+void createStopList(void);
+bool searchStopList(char* word);
+void sortListOfWords(void);
+bool dotheWork(char * query);
+void traverse_forward(struct dlist *l);
 
-FILE *fd; //file descriptor of file that stores content of word-page
-struct dlist* stopWordList = dlist_create();
-struct dlist* listOfWords = dlist_create();
+ //file descriptor of file that stores content of word-page
+struct dlist* stopWordList = NULL;
+struct dlist* listOfWords = NULL;
 
 void putWordsinList(void){
+  FILE *fd;
   char oneword[100];
   fd = fopen("something.txt", "r");
+  int c;
   do {
-      c = fscanf(fp1,"%s",oneword); /* got one word from the file */
+      c = fscanf(fd,"%s",oneword); /* got one word from the file */
       if(searchStopList(oneword) == false){
-      dlist_add_back(listOfWords, oneword);
+	dlist_add_back(listOfWords, (void *)oneword);
+	 printf("%s\n", oneword);
+	printf("firsty - %s\n", (char *)listOfWords->front->data);fflush(stdout);
       }
    } while (c != EOF);              /* repeat until EOF           */
 
@@ -25,11 +36,11 @@ void putWordsinList(void){
 }
 
 bool searchQuery(char* target){
-if(strcmp(target, dlist_iter_begin(listOfWords)) == 0){
+if(strcmp(target, dlist_iter_begin(listOfWords)->data) == 0){
     return true;
   }
   while(dlist_iter_has_next(listOfWords) != false){
-    if(strcmp(target, dlist_iter_next(listOfWords)) == 0){
+    if(strcmp(target, dlist_iter_next(listOfWords)->data) == 0){
     return true;
   }
   }
@@ -38,21 +49,24 @@ if(strcmp(target, dlist_iter_begin(listOfWords)) == 0){
 }
 
 void createStopList(void){
-  char oneword[100];
+  FILE *fd;
+  char*  oneword = malloc(50);
+  int c;
   fd = fopen("stop-word.txt", "r");
   do {
-      c = fscanf(fp1,"%s",oneword); /* got one word from the file */
+      c = fscanf(fd,"%s",oneword); /* got one word from the file */
       dlist_add_back(stopWordList, oneword);
+      printf("%s\n", oneword);
    } while (c != EOF);              /* repeat until EOF           */
-
+  printf("here\n");
    fclose(fd);
 }
 bool searchStopList(char* word){
-  if(strcmp(word, dlist_iter_begin(stopWordList)) == 0){
+  if(strcmp(word, dlist_iter_begin(stopWordList)->data) == 0){
     return true;
   }
   while(dlist_iter_has_next(stopWordList) != false){
-    if(strcmp(word, dlist_iter_next(stopWordList)) == 0){
+    if(strcmp(word, dlist_iter_next(stopWordList)->data) == 0){
     return true;
   }
   }
@@ -60,27 +74,58 @@ bool searchStopList(char* word){
 }
 
 void sortListOfWords(void){
-  void* temp;
-  int n = (int) dlist_num_elems(listOfWords);
-  for (int i = 0; i < n; i++) {
-      for (int j = 0; j < n - 1; j++) {
-	char* word = listOfWords->iter->data; 
-	if (strcmp(word, dlist_iter_next(listOfWords)) > 0) {
-            strcpy(temp, word);
-            strcpy(dlist_iter_prev(listOfWords), str[j + 1]);
-            strcpy(str[j + 1], temp);
-         }
-      }
-  }
+  /* Checking for empty list */
+   if (listOfWords == NULL)
+        return;
+  char temp[350] ;
+  bool sorted ; 
+  struct dnode* start;
+  do{
+    sorted = false;
+    start = listOfWords->front;
+    //char* word = listOfWords->iter->data;
+	dlist_iter_begin(listOfWords);
+	while(start->next != NULL){
+	if (strcmp(start->data, start->next->data) > 0) {
+            strcpy(temp, start->data);
+            strcpy(start->data, start->next->data);
+            strcpy(start->next->data, temp);
+	    
+	    sorted = true;
+	}
+	start = start->next;
+	
+	}
+  }while(sorted);
 }
 
   bool dotheWork(char * query){
+    stopWordList = dlist_create();
+    listOfWords = dlist_create();
     createStopList();
+    traverse_forward(stopWordList);
     putWordsinList();
-    sortListOfWords();
+    
+    traverse_forward(listOfWords);
+    //sortListOfWords();
     return searchQuery(query);
   }
+void traverse_forward(struct dlist *l) {
+  char *str;
+  printf("forward traversal\n");
+  for (str = dlist_iter_begin(l)->data; str != NULL;
+       str = (char *) dlist_iter_next(l)->data)	{ 
+    printf("string = %s\n", str);
+  }
+}
 
 int main(){
-  printf(dotheWork());
+  /*traverse_forward(stopWordList);
+    traverse_forward(listOfWords);*/
+  if(dotheWork("love") == true){
+  printf("true\n");
+  }
+  else{
+     printf("false\n");
+  }
 }
