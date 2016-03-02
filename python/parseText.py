@@ -16,14 +16,18 @@ def updateDict(key):
 '''Main section of code that reads in lines and adds the
 words to a dicitonary'''
 l = sys.stdin.readline() 
-while(l != "terminate\n"):
-	regEx = "[A-Za-z\-]+"
-	p = re.compile(regEx)
-	for t in p.findall(l):
-		updateDict(t.lower())
-#		print("word: "+t) 
+while(l != "terminate\n"):                   #looks for termination key
+	regEx = "[A-Za-z\-]+"   
+	p = re.compile(regEx)                # compiles regEx
+	for t in p.findall(l):               # finds all matches
+		updateDict(t.lower())        # converts to lower - recognizes similar words and updates dict
 		sys.stdout.write(t.lower()) 
-	l = sys.stdin.readline()
+	l = sys.stdin.readline()             # reads next line
+
+
+
+
+
 #for elem in dict.keys():
 #	print("The element: "+elem)
 #	print("      value: "+str(dict[elem]))
