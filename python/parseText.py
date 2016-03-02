@@ -17,7 +17,7 @@ def updateDict(key):
 words to a dicitonary'''
 l = sys.stdin.readline() 
 while(l != "terminate\n"):
-	regEx = "[A-Za-z]+"
+	regEx = "[A-Za-z\-]+"
 	p = re.compile(regEx)
 	for t in p.findall(l):
 		updateDict(t.lower())
