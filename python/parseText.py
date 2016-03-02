@@ -21,8 +21,9 @@ while(l != "terminate\n"):
 	p = re.compile(regEx)
 	for t in p.findall(l):
 		updateDict(t.lower())
-		print("word: "+t) 
+#		print("word: "+t) 
+		sys.stdout.write(t.lower()) 
 	l = sys.stdin.readline()
-for elem in dict.keys():
-	print("The element: "+elem)
-	print("      value: "+str(dict[elem]))
+#for elem in dict.keys():
+#	print("The element: "+elem)
+#	print("      value: "+str(dict[elem]))
