@@ -21,7 +21,7 @@ while(l != "terminate\n"):                   #looks for termination key
 	p = re.compile(regEx)                # compiles regEx
 	for t in p.findall(l):               # finds all matches
 		updateDict(t.lower())        # converts to lower - recognizes similar words and updates dict
-		sys.stdout.write(t.lower()) 
+		sys.stdout.write(t.lower()+"\n") 
 	l = sys.stdin.readline()             # reads next line
 
 
