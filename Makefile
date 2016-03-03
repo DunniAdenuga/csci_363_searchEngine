@@ -17,7 +17,7 @@ SERVEROBJS = $(OBJ)/webserver.o $(OBJ)/send_eof.o $(OBJ)/readln.o $(PAGEOBJS)
 
 EXECS = test_crawler webserver
 
-all: $(EXECS)
+all: mkdirs $(EXECS)
 
 doc:
 	doxygen
@@ -35,6 +35,11 @@ $(OBJ)/%.o: %.c
 #$(OBJ)/queryFinder.o: $(SRC)/queryFinder.c $(OBJ)/dnode.o $(OBJ)/dlist.o
 	#$(CC) -o $(BIN)/$@ $(CFLAGS) $(OBJ)/dnode.o $(OBJ)/dlist.o $(SRC)/queryFinder.c
 
+mkdirs:
+	mkdir -p $(OBJ)
+	mkdir -p $(DOC)
+	mkdir -p $(BIN)
+
 test_crawler: $(CRAWLEROBJS)
 	$(CC) -o $(BIN)/$@ $(LFLAGS) $(CRAWLEROBJS)
 
@@ -43,7 +48,7 @@ webserver: $(SERVEROBJS)
 
 .PHONY: clean
 clean:
-	/bin/rm -rf $(BIN)/* $(OBJ)/* core* *~
+	/bin/rm -rf $(BIN) $(OBJ) core* *~
 
 cleanswap:
 	/bin/rm -f \.*swp
