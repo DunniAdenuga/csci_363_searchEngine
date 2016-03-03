@@ -43,7 +43,7 @@ should compile the program without error.
 Then, run the following commands:
 chmod 644 web/Shmoogle_noresults.html
 chmod 644 web/Shmoogle.html
-chmod 644 HTML_Styling.css
+chmod 644 web/HTML_Styling.css
 
 ### Execution
 
