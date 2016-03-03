@@ -57,6 +57,7 @@ int     send_file(int, char*);
 int     check_file_status(char * fname);
 int     get_file_size(char*);
 char*   get_file_data(char*);
+char*   get_response_type(char *filename);
 
 // HTTP processing
 int     is_valid_http_req(char*, char*);

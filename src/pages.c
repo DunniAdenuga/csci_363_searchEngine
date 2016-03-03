@@ -94,8 +94,10 @@ char *get_results_urls(char *query){
     if(searchQuery(words[i])){
       printf("\tfound!!!\n");
       destroy_query_words(word_count, words);
-      char *return_url = malloc(strlen(INITIAL_HOST) + strlen(INITIAL_PATH) + 1);
-      strcpy(return_url, INITIAL_HOST);
+      char *return_url = malloc(strlen(INITIAL_HOST) + strlen(INITIAL_PATH) + 8);
+      return_url[0] = '\0';
+      strcpy(return_url, "http://");
+      strcat(return_url, INITIAL_HOST);
       strcat(return_url, INITIAL_PATH);
       return return_url;
     }

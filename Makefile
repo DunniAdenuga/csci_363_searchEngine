@@ -51,6 +51,6 @@ clean:
 	/bin/rm -rf $(BIN) $(OBJ) core* *~
 
 cleanswap:
-	/bin/rm -f \.*swp
+	/bin/rm -f \.*swp */\.*swp
 	/bin/rm -f /src/\.*swp
 
