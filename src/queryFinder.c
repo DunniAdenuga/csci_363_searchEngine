@@ -1,3 +1,4 @@
+/*Dunni, Michael & Greg*/
 #include "stdio.h"
  #include <sys/types.h>
  #include <sys/stat.h>
@@ -14,7 +15,7 @@ void sortListOfWords(void);
 bool dotheWork(char * query);
 void traverse_forward(struct dlist *l);
 
- //file descriptor of file that stores content of word-page
+ 
 struct dlist* stopWordList = NULL;
 struct dlist* listOfWords = NULL;
 
@@ -25,14 +26,14 @@ void insertWord(char *word){
 }
 
 void putWordsinList(void){
-  FILE *fd;
+  FILE *fd;//file stream for file to be open
 
   fd = fopen("something.txt", "r");
   int c;
   do {
     char*  oneword = malloc(50);
     c = fscanf(fd,"%s",oneword); /* got one word from the file */
-    if(searchStopList(oneword) == false){
+    if(searchStopList(oneword) == false){//if word is stop-word, don't add
       dlist_add_back(listOfWords, (void *)oneword);	 
 
     }
@@ -42,6 +43,7 @@ void putWordsinList(void){
 }
 
 bool searchQuery(char* target){
+  //if word is in list
   if(strcmp(target, dlist_iter_begin(listOfWords)->data) == 0){
     return true;
   }
@@ -50,6 +52,7 @@ bool searchQuery(char* target){
       return true;
     }
   }
+  //else
   return false;
 
 }
@@ -95,10 +98,12 @@ void sortListOfWords(void){
   do{
     sorted = false;
     start = listOfWords->front;
+    //using buble sort to sort list
     //char* word = listOfWords->iter->data;
     dlist_iter_begin(listOfWords);
     while(start->next != NULL){
       if (strcmp(start->data, start->next->data) > 0) {
+	//change positions
         strcpy(temp, start->data);
         strcpy(start->data, start->next->data);
         strcpy(start->next->data, temp);
@@ -112,6 +117,7 @@ void sortListOfWords(void){
 }
 
 void initFinder(){
+  //create initial resources
   stopWordList = dlist_create();
   listOfWords = dlist_create();
   createStopList();
@@ -121,12 +127,12 @@ bool dotheWork(char * query){
   stopWordList = dlist_create();
   listOfWords = dlist_create();
   createStopList();
-  traverse_forward(stopWordList);
+  traverse_forward(stopWordList);///printf(stopWordList)
   putWordsinList();
 
   traverse_forward(listOfWords);
   sortListOfWords();
-  traverse_forward(listOfWords);
+  traverse_forward(listOfWords);//printf(listOfWords)
   return searchQuery(query);
 }
 
