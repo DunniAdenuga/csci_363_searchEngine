@@ -32,11 +32,18 @@ $ ./bin/pages www.bucknell.edu /
 
 ### Description
 
+In the second phase of the project we created a web server (a simple search engine) that can answer user queries about a web page our program has visited and indexed. 
+
 ### Compilation
 
 To test the functionality of the project, we must first compile the programs.
 To do this, `cd` into the root folder of the project and call `make`. This
 should compile the program without error.
+
+Then, run the following commands:
+chmod 644 web/Shmoogle_noresults.html
+chmod 644 web/Shmoogle.html
+chmod 644 HTML_Styling.css
 
 ### Execution
 
@@ -52,3 +59,4 @@ Then, open a web browser and enter the following:
 ```
 localhost:PORT
 ```
+
