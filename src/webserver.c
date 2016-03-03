@@ -66,7 +66,6 @@ void    process_head(char*, int);
 
 // parsing and response functions
 int getUrls(char *value, char* urls[]);
-char *getPostResponse(int urlCount, char** urls);
 
 
 /*-----------------------------------------------------------------------
@@ -86,12 +85,14 @@ int main(int argc, char *argv[]) {
   char    header[8*BUFFSIZE]; // http header
 
 
+  // check correct input
   if (argc != 2) {
     (void) fprintf(stderr, "usage: %s <app_port_num>\n", argv[0]);
     (void) fprintf(stderr, "for example : %s 8688\n", argv[0]);
     exit(1);
   }
 
+  // read in the crawling data (will be altered for phase 3)
   init_crawler("www.bucknell.edu", "/");
 
   port = atoi(argv[1]);
@@ -223,6 +224,60 @@ int get_content_length(char * header)  {
 }
 
 /*---------------------------------------------------
+ * Process the HTTP "HEAD" command, returns meta-
+ * information about the resource requested
+ *
+ * parameters:
+ *   path: file path for the requested document
+ *   conn: socket for the connection
+ * 
+ *---------------------------------------------------
+ */
+void
+process_head(char * fname, int conn) {
+  char *response_type;
+  int fsize;
+  int fstatus = check_file_status(fname);
+
+  if (fstatus == READBLE) {      // Good file
+    response_type = get_response_type(fname);
+    fsize = get_file_size(fname);
+    send_head(conn, 200, fsize, response_type);
+  } else if (fstatus == NONEXST) {    // Does not exist
+    send_head(conn, 404, strlen(ERROR_404), "text/html");
+  } else if (fstatus == NONREAD) {    // Permission denied
+    send_head(conn, 403, strlen(ERROR_403), "text/html");
+  } else {                            // Internal server error
+    send_head(conn, 500, strlen(ERROR_500), "text/html");
+  }
+
+  (void) send_eof(conn);
+}
+
+/*---------------------------------------------------
+ * Process the HTTP "GET" command, returns the default
+ * page or the response appropriate for the specified
+ * path.
+ *
+ * parameters:
+ *   path: file path for the requested document
+ *   conn: socket for the connection
+ * 
+ *---------------------------------------------------
+ */
+void
+process_get(char * path, int conn) {
+  /* send the requested web page or any error message */
+  if (strcmp(path, "/") == 0) {
+    send_file(conn, "web/Shmoogle.html");
+  }else {
+    send_file(conn, path + 1);
+  }
+}
+
+
+
+/*---------------------------------------------------
  * This is a simplified vesion of the function. It
  * assumes that there is only one pair of name/value!
  * The function processes the post information, returning
@@ -268,8 +323,9 @@ void process_post(int conn, char * header) {
   n = strlen(assign) - strlen(amp);
   strncpy(value, (assign+1), n-1);
   value[n-1] = 0;
+  printf("%s\n", value);
 
-  // build HTML code for display
+  // build HTML code for for search results
   char* urls = get_results_urls(value);
   char *response;
 
@@ -287,8 +343,21 @@ void process_post(int conn, char * header) {
   send(conn, response, n, 0);
 
   free(response);
+  free(urls);
 }
 
+/*---------------------------------------------------
+ * Determines the extension of the file given. This
+ * is determined through the name only. No other
+ * means are used
+ *
+ * parameters:
+ *   filename:   the file from which to retrieve the extension
+ *
+ * return:
+ *    The extension of the file
+ *---------------------------------------------------
+ */
 char *get_file_ext(char *filename) {
   char *dot = filename;
   while(*dot != '\0' && *dot != '.') {
@@ -297,6 +366,18 @@ char *get_file_ext(char *filename) {
   return dot + 1;
 }
 
+/*---------------------------------------------------
+ * Determines the response type for the file specified.
+ * This type is determined by the file's extension.
+ *
+ * parameters:
+ *   filename:   the file from which to retrieve the extension
+ *
+ * return:
+ *    The response type for the file. Empty string if
+ *    the extension does not match known extensions
+ *---------------------------------------------------
+ */
 char *get_response_type(char *filename) {
   char *fext = get_file_ext(filename);
   if(strcmp(fext, "html") == 0){
@@ -309,57 +390,6 @@ char *get_response_type(char *filename) {
     return "text/css";
   }else{
     return "";
-  }
-}
-
-/*---------------------------------------------------
- * Process the HTTP "HEAD" command, returns meta-
- * information about the resource requested
- *
- * parameters:
- *   path: file path for the requested document
- *   conn: socket for the connection
- * 
- *---------------------------------------------------
- */
-void
-process_head(char * fname, int conn) {
-  char *response_type;
-  int fsize;
-  int fstatus = check_file_status(fname);
-
-  if (fstatus == READBLE) {      // Good file
-    response_type = get_response_type(fname);
-    fsize = get_file_size(fname);
-    send_head(conn, 200, fsize, response_type);
-  } else if (fstatus == NONEXST) {    // Does not exist
-    send_head(conn, 404, strlen(ERROR_404), "text/html");
-  } else if (fstatus == NONREAD) {    // Permission denied
-    send_head(conn, 403, strlen(ERROR_403), "text/html");
-  } else {                            // Internal server error
-    send_head(conn, 500, strlen(ERROR_500), "text/html");
-  }
-
-  (void) send_eof(conn);
-}
-
-/*---------------------------------------------------
- * Process the HTTP "GET" command, returns some hard-
- * coded HTML files.
- *
- * parameters:
- *   path: file path for the requested document
- *   conn: socket for the connection
- * 
- *---------------------------------------------------
- */
-void
-process_get(char * path, int conn) {
-  /* send the requested web page or any error message */
-  if (strcmp(path, "/") == 0) {
-    send_file(conn, "web/Shmoogle.html");
-  }else {
-    send_file(conn, path + 1);
   }
 }
 
@@ -454,7 +484,7 @@ send_head(int conn, int stat, int len, char * type)
  *       1: not readable
  *-----------------------------------------------------------------------
  */
-  int 
+int 
 check_file_status(char * fname) 
 {
   // container for complete set of file permission bits (binary)
@@ -489,6 +519,12 @@ check_file_status(char * fname)
 /*
  *---------------------------------------------------
  * Return the size of a given file.
+ *
+ * parameters:
+ *   fname: the name of the file to be examined
+ *
+ * return:
+ *   the size of the file in bytes, -1 on stat fail
  *---------------------------------------------------
  */
 int get_file_size(char * fname) {
@@ -502,7 +538,7 @@ int get_file_size(char * fname) {
   // try to access file
   file_status = stat(fname, &file_info);
   if (file_status != 0) { // stat() call failed
-    file_size = 0;
+    file_size = -1;
   } else {                // extract file size
     file_size = file_info.st_size;
   }
@@ -510,8 +546,25 @@ int get_file_size(char * fname) {
   return file_size;
 }
 
+/*
+ *---------------------------------------------------
+ * Return the character data of a given file.
+ *
+ * parameters:
+ *   fname: the name of the file to be examined
+ *
+ * return:
+ *   a string containing the file data
+ *---------------------------------------------------
+ */
 char *get_file_data(char *fname) {
   int size = get_file_size(fname);
+  
+  // on error
+  if(size < 0){
+    return "";
+  }
+
   char *file = malloc(size + 1);
   int fd = open(fname, O_RDONLY);
 
@@ -520,6 +573,23 @@ char *get_file_data(char *fname) {
   return file;
 }
 
+/*
+ *---------------------------------------------------
+ * Sends the specified file or an appropriate error
+ * if it cannot be read
+ *
+ * parameters:
+ *   conn:  the file descriptor for the connection
+ *   fname: the name of the file to be sent
+ *
+ * return:
+ *   the file status:
+ *   -2: unknown
+ *   -1: doesn't exist
+ *    0: readable
+ *    1: not readable
+ *---------------------------------------------------
+ */
 int send_file(int conn, char *fname) {
 
   char *response_type;
@@ -546,68 +616,5 @@ int send_file(int conn, char *fname) {
     send(conn, ERROR_500, strlen(ERROR_500), 0);
   }
 
-  return 0;
-}
-
-int getUrls(char* value, char* urls[]){
-  urls[0] = malloc(80);
-  strcpy(urls[0], "http://www.bucknell.edu");
-  return 1;
-}
-
-char *getPostResponse(int urlCount, char** urls){
-  char *page;
-
-  int srv_to_gen[2];
-  int gen_to_srv[2];
-
-  pipe(srv_to_gen);                     //create a pipe
-  pipe(gen_to_srv);                   //create a pipe
-  int pid = fork();
-
-  if(pid > 0){    // parent process
-    // close unwanted ends of pipes
-    close(srv_to_gen[READ]);
-    close(gen_to_srv[WRITE]);
-
-    // write to and read results from child
-    char *term = "\nterminate\n";
-  
-    // write the urls to the generator
-    int i;
-    for(i = 0; i < urlCount; i++){
-      write(srv_to_gen[WRITE], urls[i], strlen(urls[i]));
-      write(srv_to_gen[WRITE], "\n", 1);
-    }
-
-    // terminate the generator
-    write(srv_to_gen[WRITE], term, strlen(term));
-
-    // read the file length
-    int len;
-    char *len_buff = malloc(20);
-    size_t n_bytes = 20;
-    FILE* fp = fdopen(gen_to_srv[READ], "r");
-    getline(&len_buff, &n_bytes, fp);
-    len = atoi(len_buff);
-
-    page = malloc(len+1);
-    fread(page, len, 1, fp);
-
-    page[len + 1] = '\0';
-
-  } else{         // Child process
-    // redirect pipes to stdin and stdout
-    dup2(srv_to_gen[READ], STDIN_FILENO);
-    dup2(gen_to_srv[WRITE], STDOUT_FILENO);
-
-    // close unneeded pipes (all of them)
-    close(srv_to_gen[WRITE]);
-    close(gen_to_srv[READ]);
-
-    // begin the parsing process
-    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "python/genPage.py", (char *)NULL);
-  }
-
-  return page;
+  return fstatus;
 }
