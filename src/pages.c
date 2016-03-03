@@ -27,18 +27,41 @@ int Dup2(int, int);
 char *get_urls(char *page_content, char *page_host);
 char *get_words(char *page_content);
 
+int get_query_word_count(char *query);
+int get_query_words(char *query, char ***words);
+void destroy_query_words(int word_count, char **words);
+
 // helper functions
 void print_urls(char *page_urls);
 void add_words(char *page_words);
 void query_loop();
 
+// values which must be recorded
+char *INITIAL_HOST;
+char *INITIAL_PATH;
+
+/* -------------------------------------------------------
+ * Initializes the crawler for phase2
+ *
+ * parameters:
+ *   initial_host:  The host from which to begin crawling
+ *   initial_path:  The path from which to begin crawling
+ * -------------------------------------------------------
+ */
 void init_crawler(char *initial_host, char *initial_path){
+  // record the initial data
+  INITIAL_HOST = malloc(strlen(initial_host) + 1);
+  INITIAL_PATH = malloc(strlen(initial_path) + 1);
+
+  strcpy(INITIAL_HOST, initial_host);
+  strcpy(INITIAL_PATH, initial_path);
+
   // get the page results
   char *page_content = get_page(initial_host, initial_path);
   char *page_urls = get_urls(page_content, initial_host);
   char *page_words = get_words(page_content);
 
-  printf("%s\n", page_words);
+  //printf("%s\n", page_words);
 
   // add words to memory
   add_words(page_words);
@@ -48,14 +71,128 @@ void init_crawler(char *initial_host, char *initial_path){
   free(page_words);
 }
 
+/* -------------------------------------------------------
+ * Returns a string of the urls associated with the given
+ * search query.
+ *
+ * parameters:
+ *   query:  the search query consisting of "+" seperated
+ *           words
+ * return:
+ *   a string with one url per line for the results
+ * -------------------------------------------------------
+ */
 char *get_results_urls(char *query){
-  if(searchQuery(query)){
-    return "https://www.bucknell.edu/\n";
-  }else{
-    return NULL;
+  char **words;
+  int word_count = get_query_words(query, &words);
+
+  printf("\nGot count: %d\n", word_count);
+  printf("Got words: %p\n", words);
+
+  for(int i = 0; i < word_count; i++){
+    printf("words[%d]: %s\n", i, words[i]);
+    if(searchQuery(words[i])){
+      printf("\tfound!!!\n");
+      destroy_query_words(word_count, words);
+      char *return_url = malloc(strlen(INITIAL_HOST) + strlen(INITIAL_PATH) + 1);
+      strcpy(return_url, INITIAL_HOST);
+      strcat(return_url, INITIAL_PATH);
+      return return_url;
+    }
   }
+  destroy_query_words(word_count, words);
+  return NULL;
 }
 
+/* -------------------------------------------------------
+ * Returns the number of words in a query based on the 
+ * counted "+" signs found
+ *
+ * parameters:
+ *   query:  the search query consisting of "+" seperated
+ *           words
+ * return:
+ *   the number of search words found
+ * -------------------------------------------------------
+ */
+int get_query_word_count(char *query){
+  char *plus = query;
+  int count = 1;
+  while((plus = strstr(plus, "+")) != NULL){
+    count += 1;
+    plus += 1;    // skip the "+" on subsequent searches
+  }
+  return count;
+}
+
+/* -------------------------------------------------------
+ * Returns the number of words in a query based on the 
+ * counted "+" signs found
+ *
+ * parameters:
+ *   query:  the search query consisting of "+" seperated
+ *           words
+ *   words:  the address of a **char where the discovered
+ *           words will be stored
+ * return:
+ *   the number of search words found
+ * -------------------------------------------------------
+ */
+int get_query_words(char *query, char ***words){
+  int count = get_query_word_count(query);
+  char *plus;
+  char *prev_plus = query;
+  *words = (char **) malloc(count*sizeof(char *));
+
+  int cur_count = 0;
+  while((plus = strstr(prev_plus, "+")) != NULL){
+    int n = strlen(prev_plus) - strlen(plus);
+
+    (*words)[cur_count] = malloc(n + 1);
+    strncpy((*words)[cur_count], prev_plus, n);
+    (*words)[cur_count][n] = 0;
+
+    prev_plus = plus + 1;
+    cur_count += 1;
+  }
+
+  int n = strlen(prev_plus);
+  (*words)[cur_count] = malloc(n + 1);
+  strncpy((*words)[cur_count], prev_plus, n);
+  (*words)[cur_count][n] = 0;
+
+  return count;
+}
+
+/* -------------------------------------------------------
+ * Frees all data associated with the query words as they
+ * are allocated in "get_query_words"
+ *
+ * parameters:
+ *   word_count:  the number of words stored
+ *   words:       the array of words to free
+ * -------------------------------------------------------
+ */
+void destroy_query_words(int word_count, char **words){
+  printf("Destroying...\n");
+  for(int i = 0; i < word_count; i++){
+    printf("words[%d]: %s\n", i, words[i]);
+    free(words[i]);
+  }
+  free(words);
+}
+
+/* -------------------------------------------------------
+ * Generates a "results" page using the urls given
+ *
+ * parameters:
+ *   urls:  a string of newline seperated urls to be
+ *          included in the results
+ *
+ * return:
+ *   a string of html to be returned as the response
+ * -------------------------------------------------------
+ */
 char *get_response_page(char *urls){
   char *response_page;
   pid_t pid_genPage;
@@ -113,10 +250,72 @@ char *get_response_page(char *urls){
   return response_page;
 }
 
+/* -------------------------------------------------------
+ * Prints out urls as returned by the parseURL.py script
+ *
+ * parameters:
+ *   urls:  a string of newline seperated <host>\n<path> pairs
+ * -------------------------------------------------------
+ */
 void print_urls(char *urls){
   ssize_t size = strlen(urls);
   FILE *in_urls = fmemopen(urls, size, "r");
+  char *getPostResponse(int urlCount, char** urls){
+  char *page;
+
+  int srv_to_gen[2];
+  int gen_to_srv[2];
+
+  pipe(srv_to_gen);                     //create a pipe
+  pipe(gen_to_srv);                   //create a pipe
+  int pid = fork();
+
+  if(pid > 0){    // parent process
+    // close unwanted ends of pipes
+    close(srv_to_gen[READ]);
+    close(gen_to_srv[WRITE]);
+
+    // write to and read results from child
+    char *term = "\nterminate\n";
   
+    // write the urls to the generator
+    int i;
+    for(i = 0; i < urlCount; i++){
+      write(srv_to_gen[WRITE], urls[i], strlen(urls[i]));
+      write(srv_to_gen[WRITE], "\n", 1);
+    }
+
+    // terminate the generator
+    write(srv_to_gen[WRITE], term, strlen(term));
+
+    // read the file length
+    int len;
+    char *len_buff = malloc(20);
+    size_t n_bytes = 20;
+    FILE* fp = fdopen(gen_to_srv[READ], "r");
+    getline(&len_buff, &n_bytes, fp);
+    len = atoi(len_buff);
+
+    page = malloc(len+1);
+    fread(page, len, 1, fp);
+
+    page[len + 1] = '\0';
+
+  } else{         // Child process
+    // redirect pipes to stdin and stdout
+    dup2(srv_to_gen[READ], STDIN_FILENO);
+    dup2(gen_to_srv[WRITE], STDOUT_FILENO);
+
+    // close unneeded pipes (all of them)
+    close(srv_to_gen[WRITE]);
+    close(gen_to_srv[READ]);
+
+    // begin the parsing process
+    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "python/genPage.py", (char *)NULL);
+  }
+
+  return page;
+}
   char host[512];
   char path[2048];
 
@@ -140,6 +339,10 @@ void print_urls(char *urls){
   }
 }
 
+/* -------------------------------------------------------
+ * A wrapper for the fork function
+ * -------------------------------------------------------
+ */
 int Fork(void)
 {
   int pid = fork();
@@ -152,6 +355,10 @@ int Fork(void)
   return pid;
 }
 
+/* -------------------------------------------------------
+ * A wrapper for the pipe function
+ * -------------------------------------------------------
+ */
 int Pipe(int pipefd[2])
 {
   int result = pipe(pipefd);
@@ -163,6 +370,10 @@ int Pipe(int pipefd[2])
   return result;
 }
 
+/* -------------------------------------------------------
+ * A wrapper for the dup2 function
+ * -------------------------------------------------------
+ */
 int Dup2(int oldfd, int newfd){
   int result = dup2(oldfd, newfd);
   if(result == -1){
@@ -172,13 +383,19 @@ int Dup2(int oldfd, int newfd){
   return result;
 }
 
-/*
- * Runs a python script which will extract the urls from a web page.
- * The script reads a web page on the standard input and outputs
- * the discovered urls on the standard output.
+/* -------------------------------------------------------
+ * Runs a python script which will extract the urls from 
+ * a web page. The script reads a web page on the standard 
+ * input and outputs the discovered urls on the standard 
+ * output.
  *
- * page_content   - A null terminated string containing the web page
- * return         - A string with one discovered url per line
+ * parameters:
+ *   page_content: A null terminated string containing 
+ *                 the web page
+ *
+ * return: 
+ *   A string with one discovered url per line
+ * -------------------------------------------------------
  */
 char *get_urls(char *page_content, char *page_host){
   char *urls;
@@ -236,13 +453,19 @@ char *get_urls(char *page_content, char *page_host){
   return urls;
 }
 
-/*
- * Runs a python script which will extract the words from a web page.
- * The script reads a web page on the standard input and outputs
- * the discovered words on the standard output.
+/* -------------------------------------------------------
+ * Runs a python script which will extract the words from 
+ * a web page. The script reads a web page on the standard 
+ * input and outputs the discovered words on the standard 
+ * output.
  *
- * page_content   - A null terminated string containing the web page
- * return         - A string with one discovered word per line
+ * parameters:
+ *   page_content: A null terminated string containing 
+ *                 the web page
+ *
+ * return:
+ *   A string with one discovered word per line
+ * -------------------------------------------------------
  */
 char *get_words(char *page_content){
   char *words;
@@ -301,6 +524,14 @@ char *get_words(char *page_content){
   return words;
 }
 
+/* -------------------------------------------------------
+ * Adds words to the finder's record as having been
+ * seen
+ *
+ * parameters:
+ *   words: A string of newline separated words to add
+ * -------------------------------------------------------
+ */
 void add_words(char *words){
   initFinder();
 
@@ -311,7 +542,7 @@ void add_words(char *words){
   char *word_return = fgets(word, sizeof(word), in_words);
   words[strlen(word) - 1] = '\0';
 
-  // loop through all host, path pairs
+  // loop through all words pairs
   while( word_return != NULL ){
     char *new_word = malloc(strlen(word) + 1);
     strcpy(new_word, word);
