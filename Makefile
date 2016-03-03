@@ -12,10 +12,10 @@ vpath %.h ./include
 vpath %.c ./src
 
 CRAWLEROBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/test_crawler.o
-PAGEOBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/pages.o
-SERVEROBJS = $(OBJ)/webserver.o $(OBJ)/tcplib.o $(OBJ)/send_eof.o $(OBJ)/readln.o
+PAGEOBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/pages.o $(OBJ)/queryFinder.o $(OBJ)/dlist.o $(OBJ)/dnode.o
+SERVEROBJS = $(OBJ)/webserver.o $(OBJ)/send_eof.o $(OBJ)/readln.o $(PAGEOBJS)
 
-EXECS = test_crawler pages webserver
+EXECS = test_crawler webserver
 
 all: $(EXECS)
 
@@ -26,15 +26,20 @@ doc:
 $(OBJ)/%.o: %.c
 	$(CC) $< $(CFLAGS) -c -o $@
 
+#$(OBJ)/dnode.o: $(INC)/dnode.h $(SRC)/dnode.c
+	#$(CC) $(CFLAGS) -c $(SRC)/dnode.c -o $(OBJ)/dnode.o
+
+#$(OBJ)/dlist.o: $(INC)/dlist.h $(SRC)/dlist.c $(INC)/dnode.h
+	#$(CC) $(CFLAGS) -c $(SRC)/dlist.c -o $(OBJ)/dlist.o
+
+#$(OBJ)/queryFinder.o: $(SRC)/queryFinder.c $(OBJ)/dnode.o $(OBJ)/dlist.o
+	#$(CC) -o $(BIN)/$@ $(CFLAGS) $(OBJ)/dnode.o $(OBJ)/dlist.o $(SRC)/queryFinder.c
+
 test_crawler: $(CRAWLEROBJS)
 	$(CC) -o $(BIN)/$@ $(LFLAGS) $(CRAWLEROBJS)
 
-pages: $(PAGEOBJS)
-	$(CC) -o $(BIN)/$@ $(LFLAGS) $(PAGEOBJS)
-
 webserver: $(SERVEROBJS)
 	$(CC) -o $(BIN)/$@ $(LFLAGS) $(SERVEROBJS)
-
 
 .PHONY: clean
 clean:

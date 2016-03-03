@@ -28,4 +28,4 @@ while(l != "terminate\n"):                   #looks for termination key
 for elem in dict.keys():
 #	print("The element: "+elem)
 #	print("      value: "+str(dict[elem]))
-	sys.stdout.write(elem) 
+	sys.stdout.write(elem + "\n") 

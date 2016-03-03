@@ -32,6 +32,7 @@
 
 #include "tcplib.h"
 #include "http_response.h"    // HTTP response codes and strings
+#include "pages.h"
 
 #define NONEXST -1            // result of file access attempt
 #define NONREAD 0
@@ -90,6 +91,8 @@ int main(int argc, char *argv[]) {
     (void) fprintf(stderr, "for example : %s 8688\n", argv[0]);
     exit(1);
   }
+
+  init_crawler("www.bucknell.edu", "/");
 
   port = atoi(argv[1]);
   sock = socketServer(port);
@@ -264,12 +267,17 @@ void process_post(int conn, char * header) {
   char * amp = strstr(buff, "&");
   n = strlen(assign) - strlen(amp);
   strncpy(value, (assign+1), n-1);
-  value[n] = 0;
+  value[n-1] = 0;
 
   // build HTML code for display
-  char* urls[1];
-  int urlCount = getUrls(value, urls);
-  char *response = getPostResponse(urlCount, urls);
+  char* urls = get_results_urls(value);
+  char *response;
+
+  if(urls == NULL){
+    response = get_file_data("web/Shmoogle_noresults.html");
+  }else{
+    response = get_response_page(urls);
+  }
 
   // return the header first
   n = strlen(response);
@@ -277,6 +285,8 @@ void process_post(int conn, char * header) {
 
   // return the contents
   send(conn, response, n, 0);
+
+  free(response);
 }
 
 char *get_file_ext(char *filename) {
