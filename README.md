@@ -32,7 +32,7 @@ $ ./bin/pages www.bucknell.edu /
 
 ### Description
 
-In the second phase of the project we created a web server (a simple search engine) that can answer user queries about a web page our program has visited and indexed. 
+In the second phase of the project, we created a web server (a simple search engine) that can answer user queries about a web page our program has visited and indexed. 
 
 ### Compilation
 
