@@ -3,7 +3,7 @@ import re
 import sys
 
 # HTML code that represents the output page of a search
-htmlCap = "<!DOCTYPE html><html><head><title>Web Crawler</title><link rel='stylesheet' type='text/css' href='web/HTML_Styling.css'></head><body><div class='header'>CSCI 363 Search Engine by Michael Hammer, Greg Shrock, & Dunni Something</div><div class='title'>WEB CRAWLER</div><div class='submitRow'><form method='POST' action='/form'><input class='textBox' type='text' name='input'><input class='submitBtn' type='submit' name='Submit' value='submit'></form></div><div class='links'>"
+htmlCap = "<!DOCTYPE html><html><head><title>Web Crawler</title><link rel='stylesheet' type='text/css' href='web/HTML_Styling.css'></head><body><div class='header'>CSCI 363 Search Engine by Michael Hammer, Greg Shrock, & Dunni Adenuga</div><div class='title'>WEB CRAWLER</div><div class='submitRow'><form method='POST' action='/form'><input class='textBox' type='text' name='input'><input class='submitBtn' type='submit' name='Submit' value='submit'></form></div><div class='links'>"
 htmlTail = "</div></body></html>"
 
 
