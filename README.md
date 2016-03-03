@@ -27,3 +27,28 @@ $ ./bin/pages www.eg.bucknell.edu /~xmeng/testpages/index.html
 $ ./bin/pages www.eg.bucknell.edu /~xmeng/index.html
 $ ./bin/pages www.bucknell.edu /
 ```
+
+## Phase 2
+
+### Description
+
+### Compilation
+
+To test the functionality of the project, we must first compile the programs.
+To do this, `cd` into the root folder of the project and call `make`. This
+should compile the program without error.
+
+### Execution
+
+The compiled programs are placed into the `bin` directory.
+Run the command below where `PORT` is a valid port number 
+
+```
+$./bin/webserver PORT
+```
+Wait for few seconds(to allow webserver retrieve pages).
+Then, open a web browser and enter the following:
+
+```
+localhost:PORT
+```
