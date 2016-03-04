@@ -41,10 +41,11 @@ To do this, `cd` into the root folder of the project and call `make`. This
 should compile the program without error.
 
 Then, run the following commands:
-chmod 644 web/Shmoogle_noresults.html
-chmod 644 web/Shmoogle.html
-chmod 644 web/HTML_Styling.css
-
+```
+$chmod 644 web/Shmoogle_noresults.html
+$chmod 644 web/Shmoogle.html
+$chmod 644 web/HTML_Styling.css
+```
 ### Execution
 
 The compiled programs are placed into the `bin` directory.
