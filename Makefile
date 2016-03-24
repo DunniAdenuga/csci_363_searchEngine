@@ -11,11 +11,24 @@ BIN = ./bin
 vpath %.h ./include
 vpath %.c ./src
 
-CRAWLEROBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/test_crawler.o
-PAGEOBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/pages.o $(OBJ)/queryFinder.o $(OBJ)/dlist.o $(OBJ)/dnode.o
-SERVEROBJS = $(OBJ)/webserver.o $(OBJ)/send_eof.o $(OBJ)/readln.o $(PAGEOBJS)
+OBJ_SITE_LIST = $(OBJ)/site_list.o $(OBJ)/site_node.o
+OBJ_WORD_LIST = $(OBJ)/word_list.o $(OBJ)/word_node.o $(OBJ_SITE_LIST)
+OBJ_INV_LIST = $(OBJ)/inv_list.o $(OBJ_WORD_LIST)
 
-EXECS = test_crawler webserver
+OBJ_CRAWLER = $(OBJ)/initial_page_reader.o $(OBJ)/string_ops.o $(OBJ_INV_LIST) $(OBJ)/crawler.o 
+OBJ_TEST_CRAWLER = $(OBJ_CRAWLER) $(OBJ)/test_crawler.o
+
+#include "crawler.h"
+#include "inv_list.h"
+#include "word_list.h"
+#include "site_list.h"
+#include "initial_page_reader.h"
+#include "string_ops.h"
+
+#PAGEOBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/pages.o $(OBJ)/queryFinder.o $(OBJ)/dlist.o $(OBJ)/dnode.o
+#SERVEROBJS = $(OBJ)/webserver.o $(OBJ)/send_eof.o $(OBJ)/readln.o $(PAGEOBJS)
+
+EXECS = test_crawler
 
 all: mkdirs $(EXECS)
 
@@ -26,25 +39,19 @@ doc:
 $(OBJ)/%.o: %.c
 	$(CC) $< $(CFLAGS) -c -o $@
 
-#$(OBJ)/dnode.o: $(INC)/dnode.h $(SRC)/dnode.c
-	#$(CC) $(CFLAGS) -c $(SRC)/dnode.c -o $(OBJ)/dnode.o
-
-#$(OBJ)/dlist.o: $(INC)/dlist.h $(SRC)/dlist.c $(INC)/dnode.h
-	#$(CC) $(CFLAGS) -c $(SRC)/dlist.c -o $(OBJ)/dlist.o
-
-#$(OBJ)/queryFinder.o: $(SRC)/queryFinder.c $(OBJ)/dnode.o $(OBJ)/dlist.o
-	#$(CC) -o $(BIN)/$@ $(CFLAGS) $(OBJ)/dnode.o $(OBJ)/dlist.o $(SRC)/queryFinder.c
-
 mkdirs:
 	mkdir -p $(OBJ)
 	mkdir -p $(DOC)
 	mkdir -p $(BIN)
 
-test_crawler: $(CRAWLEROBJS)
-	$(CC) -o $(BIN)/$@ $(LFLAGS) $(CRAWLEROBJS)
+test_crawler: $(OBJ_TEST_CRAWLER)
+	$(CC) -o $(BIN)/$@ $(LFLAGS) $(OBJ_TEST_CRAWLER)
 
-webserver: $(SERVEROBJS)
-	$(CC) -o $(BIN)/$@ $(LFLAGS) $(SERVEROBJS)
+#test_crawler: $(CRAWLEROBJS)
+	#$(CC) -o $(BIN)/$@ $(LFLAGS) $(OBJ_CRAWLER)
+
+#webserver: $(SERVEROBJS)
+	#$(CC) -o $(BIN)/$@ $(LFLAGS) $(SERVEROBJS)
 
 .PHONY: clean
 clean:
