@@ -18,13 +18,6 @@ OBJ_INV_LIST = $(OBJ)/inv_list.o $(OBJ_WORD_LIST)
 OBJ_CRAWLER = $(OBJ)/initial_page_reader.o $(OBJ)/string_ops.o $(OBJ_INV_LIST) $(OBJ)/crawler.o 
 OBJ_TEST_CRAWLER = $(OBJ_CRAWLER) $(OBJ)/test_crawler.o
 
-#include "crawler.h"
-#include "inv_list.h"
-#include "word_list.h"
-#include "site_list.h"
-#include "initial_page_reader.h"
-#include "string_ops.h"
-
 #PAGEOBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/pages.o $(OBJ)/queryFinder.o $(OBJ)/dlist.o $(OBJ)/dnode.o
 #SERVEROBJS = $(OBJ)/webserver.o $(OBJ)/send_eof.o $(OBJ)/readln.o $(PAGEOBJS)
 
@@ -59,5 +52,6 @@ clean:
 
 cleanswap:
 	/bin/rm -f \.*swp */\.*swp
-	/bin/rm -f /src/\.*swp
+	/bin/rm -f /$(SRC)/\.*swp
+	/bin/rm -f /$(INC)/\.*swp
 
