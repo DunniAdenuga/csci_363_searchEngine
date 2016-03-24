@@ -6,6 +6,7 @@
 // a linked list of sites
 struct site_list{
   struct site_node *head;
+  struct site_node *tail;
   struct site_node *iter;
   int count;
 };
@@ -19,8 +20,17 @@ struct site_list *sl_load();
 void sl_save(struct site_list *l, int fd);
 
 // element manipulation
-void sl_add(struct site_list *l, char *host, char *path);
+int sl_add(struct site_list *l, char *host, char *path, int frequency);
+
+void sl_add_front(struct site_list *l, char *host, char *path, int frequency);
+void sl_add_tail(struct site_list *l, char *host, char *path, int frequency);
+
+int sl_remove_head(struct site_list *l);
+int sl_remove_tail(struct site_list *l);
+
 int sl_remove(struct site_list *l, char *host, char *path);
+
+// check list state
 int sl_contains(struct site_list *l, char *host, char *path);
 
 // iteration through elements

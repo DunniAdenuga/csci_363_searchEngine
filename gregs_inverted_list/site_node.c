@@ -6,11 +6,13 @@
 #include "site_node.h"
 
 // creates a new site node
-struct site_node *sn_create(char *host, char *path){
+struct site_node *sn_create(char *host, char *path, int frequency){
   // calloc sets all values to NULL
   struct site_node *node = calloc(1, sizeof(struct site_node));
+
   sn_set_host(node, host);
   sn_set_path(node, path);
+  node->frequency = frequency;
 
   return node;
 }
@@ -37,6 +39,7 @@ struct site_node *sn_load(int fd){
 
   read(fd, node->host, host_len);
   read(fd, node->path, path_len);
+  read(fd, &node->frequency, sizeof(node->frequency));
 
   return node;
 }
@@ -50,11 +53,17 @@ void sn_save(struct site_node *node, int fd){
   write(fd, &path_len, sizeof(path_len));
   write(fd, node->host, host_len);
   write(fd, node->path, path_len);
+  write(fd, &node->frequency, sizeof(node->frequency));
 }
 
-// sets the value the next site_node in the list
+// sets the value of the next site_node in the list
 void sn_set_next(struct site_node *node, struct site_node *next){
   node->next = next;
+}
+
+// sets the value of the prev site_node in the list
+void sn_set_prev(struct site_node *node, struct site_node *prev){
+  node->prev = prev;
 }
 
 // sets the host for a node
@@ -77,22 +86,7 @@ void sn_set_path(struct site_node *node, char *path){
   strcpy(node->path, path);
 }
 
-// gets the next site_node in the list
-struct site_node *sn_get_next(struct site_node *node){
-  return node->next;
-}
-
-// gets the host for this site_node
-char *sn_get_host(struct site_node *node){
-  return node->host;
-}
-
-// gets the path for this site_node
-char *sn_get_path(struct site_node *node){
-  return node->path;
-}
-
 // display
 void sn_display(struct site_node *node){
-  printf("site_node => host: %s   ***   path: %s\n", node->host, node->path);
+  printf("site_node => host: %s   ***   path: %s   ***   count: %d\n", node->host, node->path, node->frequency);
 }

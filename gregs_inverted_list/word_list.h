@@ -23,7 +23,7 @@ struct word_list *wl_load(int fd);
 void wl_save(struct word_list *l, int fd);
 
 // alterations
-void wl_add(struct word_list *l, char *word, char *host, char *path);
+void wl_add(struct word_list *l, char *word, char *host, char *path, int freq);
 int wl_remove(struct word_list *l, char *word, char *host, char *path);
 int wl_remove_word(struct word_list *l, char *word);
 

@@ -9,6 +9,7 @@
 struct site_list *sl_create(){
   struct site_list *l = malloc(sizeof(struct site_list));
   l->head = NULL;
+  l->tail = NULL;
   l->count = 0;
   return l;
 }
@@ -39,9 +40,12 @@ struct site_list *sl_load(int fd){
       l->head = curr;
     }else{
       sn_set_next(prev, curr);
+      sn_set_prev(curr, prev);
     }
     prev = curr;
   }
+
+  l->tail = curr;
   return l;
 }
 
@@ -52,16 +56,92 @@ void sl_save(struct site_list *l, int fd){
   struct site_node *curr = l->head;
   while(curr != NULL){
     sn_save(curr, fd);
-    curr = sn_get_next(curr);
+    curr = curr->next;
   }
 }
 
-// adds a site to the list of sites
-void sl_add(struct site_list *l, char *host, char *path){
-  struct site_node *node = sn_create(host, path);
+// adds this word to the list appropriately whether it exists already or not
+int sl_add(struct site_list *l, char *host, char *path, int frequency){
+  struct site_node *curr = l->head;
+  while(curr != NULL){
+    if(strcmp(host, curr->host) == 0 && strcmp(path, curr->path) == 0){
+      curr->frequency += frequency;
+      return curr->frequency;
+    }
+    curr = curr->next;
+  }
+
+  sl_add_tail(l, host, path, frequency);
+  return frequency;
+}
+
+// adds a site to the front of the site list
+void sl_add_front(struct site_list *l, char *host, char *path, int frequency){
+  struct site_node *node = sn_create(host, path, frequency);
+
   sn_set_next(node, l->head);
+
+  if(l->head == NULL){
+    l->tail = node;
+  }else{
+    sn_set_prev(l->head, node);
+    sn_set_next(node, l->head);
+  }
+
   l->head = node;
   l->count += 1;
+}
+
+// adds a site to the tail of the site list
+void sl_add_tail(struct site_list *l, char *host, char *path, int frequency){
+  struct site_node *node = sn_create(host, path, frequency);
+
+  if(l->tail == NULL){
+    l->head = node;
+  }else{
+    sn_set_prev(node, l->tail);
+    sn_set_next(l->tail, node);
+  }
+
+  l->tail = node;
+  l->count += 1;
+}
+
+// remove the front node from the list
+int sl_remove_head(struct site_list *l){
+  struct site_node *head = l->head;
+  if(l->count == 0){
+    return 0;
+  }else if(l->count == 1){
+    l->head = NULL;
+    l->tail = NULL;
+  }else{
+    l->head->next->prev = NULL;
+    l->head = l->head->next;
+  }
+
+  l->count -= 1;
+  sn_destroy(head);
+  return 1;
+}
+
+// remove the tail node from the list
+int sl_remove_tail(struct site_list *l){
+  struct site_node *tail = l->tail;
+
+  if(l->count == 0){
+    return 0;
+  }else if(l->count == 1){
+    l->head = NULL;
+    l->tail = NULL;
+  }else{
+    l->tail->prev->next = NULL;
+    l->tail = l->tail->prev;
+  }
+
+  l->count -= 1;
+  sn_destroy(tail);
+  return 1;
 }
 
 // remove a site from the list of sites
@@ -70,10 +150,10 @@ int sl_remove(struct site_list *l, char *host, char *path){
   struct site_node *curr = sl_iter_begin(l);
 
   while(curr != NULL){
-    if(strcmp(sn_get_host(curr), host) == 0 && strcmp(sn_get_path(curr), path)){
+    if(strcmp(curr->host, host) == 0 && strcmp(curr->path, path) == 0){
       return sl_iter_remove(l);
     }
-    curr = sn_get_next(curr);
+    curr = curr->next;
   }
   return 0;
 }
@@ -82,10 +162,10 @@ int sl_remove(struct site_list *l, char *host, char *path){
 int sl_contains(struct site_list *l, char *host, char *path){
   struct site_node *curr = l->head;
   while(curr != NULL){
-    if(strcmp(host, sn_get_host(curr)) == 0 && strcmp(path, sn_get_path(curr)) == 0)
+    if(strcmp(host, curr->host) == 0 && strcmp(path, curr->path) == 0)
       return 1;
 
-    curr = sn_get_next(curr);
+    curr = curr->next;
   }
   return 0;
 }
@@ -99,7 +179,7 @@ struct site_node *sl_iter_begin(struct site_list *l){
 // gets the next node in the list
 struct site_node *sl_iter_next(struct site_list *l){
   if(l->iter != NULL){
-    l->iter = sn_get_next(l->iter);
+    l->iter = l->iter->next;
   }
   return l->iter;
 }
@@ -117,23 +197,16 @@ int sl_iter_remove(struct site_list *l){
 
   // at the beginning of the list, increment head
   if(l->iter == l->head){
-    l->head = sn_get_next(l->head);
-    sn_destroy(l->iter);
-    l->iter = l->head;
-    l->count -= 1;
-    return 1;
+    return sl_remove_head(l);
+  }else if(l->iter == l->tail){
+    return sl_remove_tail(l);
+  }else{
+    l->iter->prev->next = l->iter->next;
+    l->iter->next->prev = l->iter->prev;
   }
 
-  // in the middle of the list, find prev and remove
-  struct site_node *curr = l->head;
-  while(sn_get_next(curr) != l->iter){
-    curr = sn_get_next(curr);
-  }
-
-  sn_set_next(curr, sn_get_next(l->iter));
-  sn_destroy(l->iter);
-  l->iter = sn_get_next(curr);
   l->count -= 1;
+  sn_destroy(l->iter);
   return 1;
 }
 
@@ -144,7 +217,7 @@ void sl_display(struct site_list *l){
   struct site_node *curr = l->head;
   while(curr != NULL){
     sn_display(curr);
-    curr = sn_get_next(curr);
+    curr = curr->next;
   }
   printf("================================\n");
 }

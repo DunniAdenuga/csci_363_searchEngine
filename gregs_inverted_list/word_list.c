@@ -72,20 +72,20 @@ void wl_add_word(struct word_list *l, char *word){
 }
 
 // add an occurance of a word
-void wl_add(struct word_list *l, char *word, char *host, char *path){
+void wl_add(struct word_list *l, char *word, char *host, char *path, int freq){
   struct word_node *curr = l->head;
 
   while(curr != NULL){
     if(strcmp(wn_get_word(curr), word) == 0){
       struct site_list *sl = wn_get_sites(curr);
-      sl_add(sl, host, path);
+      sl_add_tail(sl, host, path, freq);
       return;
     }
     curr = wn_get_next(curr);
   }
 
   wl_add_word(l, word);
-  wl_add(l, word, host, path);
+  wl_add(l, word, host, path, freq);
 }
 
 // remove an occurrance of a word site pair
