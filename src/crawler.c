@@ -118,11 +118,8 @@ int crawl_additional(struct crawler *c, int pages){
   return crawl_up_to(c, c->visited->count + pages);
 }
 
-struct site_list *crawler_query(struct crawler *c, char *word){
-  struct site_list *s = il_get_sites(c->word_results, word);
-  if(s == NULL)
-    return sl_create();
-  return s;
+const struct inv_list *crawler_get_inv_list(struct crawler *c){
+  return c->word_results;
 }
 
 int crawler_is_equal(struct crawler *c1, struct crawler *c2){
