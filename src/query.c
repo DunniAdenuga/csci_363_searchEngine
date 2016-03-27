@@ -1,3 +1,7 @@
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #define MAXWORDS 20
 
 struct query_interface{ //query API
