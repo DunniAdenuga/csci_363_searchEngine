@@ -1,3 +1,4 @@
+''' The purpose of this file is to parse the HTML of a page for words '''
 # Michael Hammer & Greg Shrock
 import re
 import sys

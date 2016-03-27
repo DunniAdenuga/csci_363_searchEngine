@@ -1,0 +1,13 @@
+Michael Hammer
+Greg Shrock
+Dunni Adenuga
+
+
+PHASE ANALYSIS ---------------------------------------
+The main purpose of this page was handle crawling to different urls and generating a list of urls for searches. In this phase Greg handled implementing the crawling, Dunni refactored our code and helped Greg, and Michael wrote docuentation and added some multiple word searching funcitonality. 
+
+When we started this phase we needed to refactor some of our old code so that crawling could be done more elegantly. This included refactoring the datastructure used to store data and wrapping some complex funcitons. After this the code was easier to work with while implementing the crawler. Finally, we needed to change the way multiple words were searched. To do this, we combined the list of urls for each searched word into one larger list. The new list of urls was then added to a webpage that was sent back to the client browser. 
+
+
+HOW TO RUN -------------------------------------------
+
