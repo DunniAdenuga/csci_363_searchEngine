@@ -84,6 +84,7 @@ void il_set_static(struct inv_list *l){
   l->ls = wls_create(l->ld);
   l->dynamic = 0;
 }
+
 void il_set_dynamic(struct inv_list *l){
   if(l->dynamic)
     return;
