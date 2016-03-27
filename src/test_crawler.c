@@ -65,6 +65,69 @@ void run_test(int (*f)(void), char *test_name){
 void run_crawler_test(int (*f)(struct crawler *c), struct crawler *c, char *test_name){
   check_test_results(f(c), test_name);
 }  
+/* -------------------------------------------------------
+ * Generates a "results" page using the urls given
+ *
+ * parameters:
+ *   urls:  a string of newline seperated urls to be
+ *          included in the results
+ *
+ * return:
+ *   a string of html to be returned as the response
+ * -------------------------------------------------------
+ */
+char *get_response_page(char *urls){
+  char *response_page;
+  pid_t pid_genPage;
+
+  // pipe for interprocess communication
+  int com_to_genPage[2];
+  int com_from_genPage[2];
+
+  //while(results != NULL){                  // used for multiple pages
+  Pipe(com_to_genPage);                     //create a pipe
+  Pipe(com_from_genPage);                   //create a pipe
+  pid_genPage = Fork();
+
+  if(pid_genPage > 0){    // parent process
+    // close unwanted ends of pipes
+    close(com_to_genPage[READ]);
+    close(com_from_genPage[WRITE]);
+
+    // write to and read results from child
+    char *term = "\nterminate\n";
+
+    write(com_to_genPage[WRITE], urls, strlen(urls));
+    write(com_to_genPage[WRITE], term, strlen(term));
+ 
+    //read(com_from_parseURL[READ], &msg_len, sizeof(int));
+    response_page = malloc(MAX_PAGE_SIZE);
+    int return_len = read(com_from_genPage[READ], response_page, MAX_PAGE_SIZE);
+    response_page[return_len] = '\0';
+
+  } else{         // Child process
+    // redirect pipes to stdin and stdout
+    Dup2(com_to_genPage[READ], STDIN_FILENO);
+    Dup2(com_from_genPage[WRITE], STDOUT_FILENO);
+
+    // close unneeded pipes (all of them)
+    close(com_to_genPage[WRITE]);
+    close(com_from_genPage[READ]);
+
+    // begin the parsing process
+    execl("/usr/remote/python-3.2/bin/python3", "/bin/python3", "python/genPage.py", (char *)NULL);
+  }
+  //}
+  
+  close(com_to_genPage[WRITE]);
+  close(com_to_genPage[READ]);
+
+  if(pid_genPage > 0){
+    kill(pid_genPage, 7);
+  }
+
+  return response_page;
+}
 
 struct crawler *basic_crawler(){
   struct crawler *c = get_simple_crawler();

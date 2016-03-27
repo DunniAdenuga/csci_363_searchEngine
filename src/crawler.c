@@ -15,9 +15,13 @@
 #include <fcntl.h>
 
 #include "crawler.h"
+
 #include "inv_list.h"
 #include "word_list.h"
 #include "site_list.h"
+
+#include "python_interface.h"
+#include "http_interface.h"
 #include "initial_page_reader.h"
 #include "string_ops.h"
 
@@ -27,24 +31,6 @@
 #define DELAY_AFTER   50
 #define DELAY_FOR     3
 
-
-//---------------------------------------------
-// fillin functions to be defined other places
-//---------------------------------------------
-
-struct site_list *get_page_links(char *host, char *path){
-  struct site_list *s = sl_create();
-  sl_add(s, "www.bucknell.edu", "/", 0);
-  return s;
-}
-
-struct word_list *get_page_words(char *host, char *path){
-  struct word_list *w = wl_create();
-  wl_add(w, "bucknell", host, path, 5);
-  return w;
-}
-
-//---------------------------------------------
 
 // functions defined in the file that aren't in the header file
 static void cl_load_current_state(struct crawler *c);
@@ -120,6 +106,13 @@ int crawl_additional(struct crawler *c, int pages){
 
 const struct inv_list *crawler_get_inv_list(struct crawler *c){
   return c->word_results;
+}
+
+struct site_list *crawler_query(struct crawler *c, char *word){
+  struct site_list *s = il_get_sites(c->word_results, word);
+  if(s == NULL)
+    return sl_create();
+  return s;
 }
 
 int crawler_is_equal(struct crawler *c1, struct crawler *c2){
@@ -267,8 +260,9 @@ void cl_process_page(struct crawler *c, char *host, char *path){
   if(sl_contains(c->visited, host, path))
     return;
 
-  struct site_list *sites = get_page_links(host, path);
-  struct word_list *words = get_page_words(host, path);
+  char *page_content = get_page_content(host, path);
+  struct site_list *sites = get_urls_wrapper(page_content);
+  struct word_list *words = get_words_wrapper(host, path, page_content);
 
   cl_enqueue_site_list(c, sites);
   cl_add_word_list(c, words);
