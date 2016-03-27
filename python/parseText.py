@@ -1,3 +1,4 @@
+''' The purpose of this file is to parse the HTML of a page for words '''
 # Michael Hammer & Greg Shrock
 import re
 import sys
@@ -28,4 +29,4 @@ while(l != "terminate\n"):                   #looks for termination key
 for elem in dict.keys():
 #	print("The element: "+elem)
 #	print("      value: "+str(dict[elem]))
-	sys.stdout.write(elem + "\n") 
+	sys.stdout.write(str(dict[elem])+ "\n" + elem + "\n") 

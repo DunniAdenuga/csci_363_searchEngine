@@ -1,3 +1,4 @@
+''' The purpose of this file is to parse a url and create the absolute URL '''
 # Michael Hammer & Greg Shrock
 import re
 import sys
