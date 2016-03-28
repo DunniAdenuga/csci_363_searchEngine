@@ -8,7 +8,7 @@
  * crawling has taken place.
  *
  * The initial pages file should be of the format:
- * host<space>path<\n>
+ * <host> <path>\n
  * eg:
  * http://www.bucknell.edu /
  * http://www.bucknell.edu /~csci203/
@@ -29,6 +29,9 @@ struct crawler{
 
 // Creates a new crawler with the files to be used for initial pages and state storage
 struct crawler *crawler_create(char *initial_pages_file, char *crawler_state_file);
+
+// Loads a crawler from the state file exiting on invalid
+struct crawler *crawler_load(char *crawler_state_file);
 
 // Frees the memory of a crawler
 void crawler_destroy(struct crawler *c);

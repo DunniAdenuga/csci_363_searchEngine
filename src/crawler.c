@@ -76,6 +76,18 @@ struct crawler *crawler_create(char *initial_pages_file, char *crawler_state_fil
   return c;
 }
 
+struct crawler *crawler_load(char *crawler_state_file){
+  struct crawler *c = calloc(1, sizeof(struct crawler));
+  cl_set_crawler_state_file(c, crawler_state_file);
+  if(cl_has_saved_state(c)){
+    cl_load_from_file(c);
+  }else{
+    printf("Attempted Crawler Load from Invalid File: %s\n", crawler_state_file);
+    exit(1);
+  }
+  return c;
+}
+
 // frees a crawler's memory
 void crawler_destroy(struct crawler *c){
   il_destroy(c->word_results);
@@ -138,12 +150,16 @@ void crawler_display(struct crawler *c){
 
 // sets up the initial_pages_member for the crawler
 void cl_set_initial_pages_file(struct crawler *c, char *initial_pages_file){
+  if(c->initial_pages_file != NULL)
+    free(c->initial_pages_file);
   c->initial_pages_file = malloc(strlen(initial_pages_file) + 1);
   strcpy(c->initial_pages_file, initial_pages_file);
 }
 
 // sets up the crawler_state_file member of the crawler
 void cl_set_crawler_state_file(struct crawler *c, char *crawler_state_file){
+  if(c->crawler_state_file != NULL)
+    free(c->initial_pages_file);
   c->crawler_state_file = malloc(strlen(crawler_state_file) + 1);
   strcpy(c->crawler_state_file, crawler_state_file);
 }

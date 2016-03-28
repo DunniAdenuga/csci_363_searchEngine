@@ -68,7 +68,6 @@ char *get_http_response(int sock_fd){
   char *out_buff = malloc(BUFFSIZE);
   int len = recv(sock_fd, out_buff, BUFFSIZE-1, 0);
   out_buff[len] = '\0';             // null terminate
-  printf("%s\n", out_buff);
 
   return out_buff;
 }

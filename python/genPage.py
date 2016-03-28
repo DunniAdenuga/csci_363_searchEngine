@@ -13,7 +13,7 @@ htmlTail = "</div></body></html>"
 links = ""
 l = ""
 while(l != 'terminate\n'): # reads until terminatino key is found
-  if(l!=""):
+  if(l!="" and l!="\n"):
     l = l[:-1]
     links = links + '<div class="linkDiv"><a href="'+l+'">'+l+'</a></div>' # appends url in HTML format
   l = sys.stdin.readline()

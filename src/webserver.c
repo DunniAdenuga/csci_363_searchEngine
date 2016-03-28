@@ -96,10 +96,7 @@ int main(int argc, char *argv[]) {
     (void) fprintf(stderr, "for example : %s 8688\n", argv[0]);
     exit(1);
   }
-  crawler = crawler_create("resources/initial_pages.txt", "resources/crawler_state.bin");
-  crawl_up_to(crawler, 10);
-  crawler_save(crawler);
-
+  crawler = crawler_load("resources/crawler_state.bin");
   query = qi_create(crawler_get_inv_list(crawler));
 
   printf("query sistem initialized...\n");
@@ -339,7 +336,7 @@ void process_post(int conn, char * header) {
   // build HTML code for for search results
   struct site_list *sites = qi_query_expression(query, value);
   char *response = get_response_page_wrapper(sites);
-  qu_destroy_query_results(sites);
+  qi_destroy_query_results(sites);
 
   // return the header first
   n = strlen(response);

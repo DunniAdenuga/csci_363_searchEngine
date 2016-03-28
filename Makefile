@@ -20,8 +20,9 @@ OBJ_CRAWLER = $(OBJ)/http_interface.o $(OBJ)/initial_page_reader.o $(OBJ)/string
 OBJ_TEST_CRAWLER = $(OBJ_CRAWLER) $(OBJ)/test_crawler.o
 
 SERVEROBJS = $(OBJ_CRAWLER) $(OBJ)/query.o $(OBJ)/webserver.o $(OBJ)/send_eof.o
+OBJ_CRAWL_PROGRAM = $(OBJ_CRAWLER) $(OBJ)/crawl_program.o
 
-EXECS = test_crawler webserver
+EXECS = webserver crawl_program
 
 all: mkdirs $(EXECS)
 
@@ -37,11 +38,11 @@ mkdirs:
 	mkdir -p $(DOC)
 	mkdir -p $(BIN)
 
-test_crawler: $(OBJ_TEST_CRAWLER)
-	$(CC) -o $(BIN)/$@ $(LFLAGS) $(OBJ_TEST_CRAWLER)
+#test_crawler: $(OBJ_TEST_CRAWLER)
+	#$(CC) -o $(BIN)/$@ $(LFLAGS) $(OBJ_TEST_CRAWLER)
 
-#test_crawler: $(CRAWLEROBJS)
-	#$(CC) -o $(BIN)/$@ $(LFLAGS) $(OBJ_CRAWLER)
+crawl_program: $(OBJ_CRAWL_PROGRAM)
+	$(CC) -o $(BIN)/$@ $(LFLAGS) $(OBJ_CRAWL_PROGRAM)
 
 webserver: $(SERVEROBJS)
 	$(CC) -o $(BIN)/$@ $(SRC)/readln.c $(LFLAGS) $(SERVEROBJS)

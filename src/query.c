@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -44,7 +45,7 @@ struct site_list *qi_query_word(struct query_interface *q, char *word){
   return s;
 }
 
-void destroy_query_results(struct site_list *s){
+void qi_destroy_query_results(struct site_list *s){
   sl_destroy(s);
 }
 
@@ -68,8 +69,6 @@ struct site_list **get_site_lists(struct query_interface *q, char **word_list, i
   struct site_list **lists = calloc(count, sizeof(struct site_list *));
   for(int i = 0; i < count; i++){
     lists[i] = qi_query_word(q, word_list[i]);
-    printf("Found Sites:\n");
-    sl_display(lists[i]);
   }
   return lists;
 }
@@ -80,8 +79,8 @@ void destroy_site_lists(struct site_list **lists, int count){
     if(lists[i]->count == 0){
       sl_destroy(lists[i]);
     }
-    free(lists);
   }
+  free(lists);
 }
 
 void destroy_word_list(char **words, int count){
@@ -92,26 +91,33 @@ void destroy_word_list(char **words, int count){
 }
 
 char **get_word_list(char *expression, int count){
+  char *exp_copy = malloc(strlen(expression) + 1);
+  strcpy(exp_copy, expression);
+
   char **words = calloc(count, sizeof(char *));
   char *word;
 
   for(int i = 0; i < count; i++){
     if(i == 0)
-      word = strtok(expression, " ");
+      word = strtok(exp_copy, "+");
     else
-      word = strtok(NULL, " ");
+      word = strtok(NULL, "+");
     words[i] = calloc(1, strlen(word));
     strcpy(words[i], word);
   }
+  free(exp_copy);
   return words;
 }
 
 int get_word_count(char *expression){
+  char *exp_copy = malloc(strlen(expression) + 1);
+  strcpy(exp_copy, expression);
   int count = 0;
-  char *str = strtok(expression, " ");
+  char *str = strtok(exp_copy, "+");
   while(str != NULL){
     count++;
-    str = strtok(NULL, " ");
+    str = strtok(NULL, "+");
   }
+  free(exp_copy);
   return count;
 }
