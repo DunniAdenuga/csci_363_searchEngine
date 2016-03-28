@@ -37,6 +37,17 @@ struct site_list *qi_query_expression(struct query_interface *q, char *expressio
 	return master_list;
 }
 
+struct site_list *qi_query_word(struct query_interface *q, char *word){
+  struct site_list *s = il_get_sites(q->il, word);
+  if(s == NULL || s->count == 0)
+    return sl_create();
+  return s;
+}
+
+void destroy_query_results(struct site_list *s){
+  sl_destroy(s);
+}
+
 struct site_list *join_site_lists(struct site_list **site_lists, int count){
   struct site_list *master_list = sl_create();
   for(int i = 0; i < count; i++){
@@ -53,24 +64,23 @@ void append_site_list(struct site_list *dst, struct site_list *src){
   }
 }
 
-struct site_list *qi_query_word(struct query_interface *q, char *word){
-  struct site_list *s = il_get_sites(q->il, word);
-  if(s == NULL)
-    return sl_create();
-  return s;
-}
-
 struct site_list **get_site_lists(struct query_interface *q, char **word_list, int count){
   struct site_list **lists = calloc(count, sizeof(struct site_list *));
   for(int i = 0; i < count; i++){
     lists[i] = qi_query_word(q, word_list[i]);
+    printf("Found Sites:\n");
+    sl_display(lists[i]);
   }
   return lists;
 }
 
 void destroy_site_lists(struct site_list **lists, int count){
+  // don't destroy the lists pointed to because they are sitll in q->il
   for(int i = 0; i < count; i++){
-    sl_destroy(lists[i]);
+    if(lists[i]->count == 0){
+      sl_destroy(lists[i]);
+    }
+    free(lists);
   }
 }
 

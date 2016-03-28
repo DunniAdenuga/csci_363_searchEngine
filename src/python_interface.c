@@ -65,7 +65,7 @@ struct word_list* get_words_wrapper(char *host, char *path, char *page_content){
 
 char* get_response_page_wrapper(struct site_list* list){
   struct site_node* node;
-  char urls[MAX];
+  char urls[MAX] = { 0 };
   sl_iter_begin(list);
   while((node = sl_iter_curr(list)) != NULL){
     strcat(urls, node->host);

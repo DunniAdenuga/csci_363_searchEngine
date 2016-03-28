@@ -5,19 +5,35 @@
 #include <stdio.h>
 
 #define HTTPPORT 80
-#define BUFFSIZE 1024
+#define BUFFSIZE 100000
 
 char *str_join(char **buff);
 
+char *get_host_without_protocol(char *host){
+  char *http = "http://";
+  char *https = "https://";
+  char *myhost = host;
+
+  if(strncmp(host, http, strlen(http)) == 0){
+    myhost = host + strlen(http);
+  }else if(strncmp(host, https, strlen(https)) == 0){
+    myhost = host + strlen(https);
+  }
+  return myhost;
+}
+
 // get the html from the page of host and path
 char *get_page_content(char *host, char *path){
-  int sock_fd = make_http_request(host, path, "GET");
+  char *host_without_protocol = get_host_without_protocol(host);
+  int sock_fd = make_http_request(host_without_protocol, path, "GET");
   return get_http_response(sock_fd);
 }
 
 // make a request to the server and return the socket fd
 int make_http_request(char *host, char *path, char *svc)
 {
+  int result = strcmp(host, "www.eg.bucknell.edu");
+
   int	port = HTTPPORT;
   int	conn;
   int	len;
@@ -48,6 +64,17 @@ int make_http_request(char *host, char *path, char *svc)
   return conn;
 }
 
+char *get_http_response(int sock_fd){
+  char *out_buff = malloc(BUFFSIZE);
+  int len = recv(sock_fd, out_buff, BUFFSIZE-1, 0);
+  out_buff[len] = '\0';             // null terminate
+  printf("%s\n", out_buff);
+
+  return out_buff;
+}
+
+
+/*
 // get the response of a server connected on the provided socket fd
 char *get_http_response(int sock_fd){
   char *out_buff[2048];
@@ -60,7 +87,7 @@ char *get_http_response(int sock_fd){
   for(i = 0; (len = recv(sock_fd, out_buff[i], BUFFSIZE-1, 0)) > 0; i++){
     out_buff[i][len] = '\0';             // null terminate
     out_buff[i+1] = malloc(BUFFSIZE);    // prepare next buffer
-    //printf("%s\n", out_buff[i]);
+    printf("%s\n", out_buff[i]);
   }
 
   return str_join(out_buff);              // out_buff buffers freed by str_join
@@ -89,3 +116,4 @@ char *str_join(char **buff){
 
   return out_buff;
 }
+*/

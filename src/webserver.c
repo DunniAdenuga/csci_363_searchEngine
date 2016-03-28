@@ -97,8 +97,12 @@ int main(int argc, char *argv[]) {
     exit(1);
   }
   crawler = crawler_create("resources/initial_pages.txt", "resources/crawler_state.bin");
-  crawl_up_to(crawler, 3);
+  crawl_up_to(crawler, 10);
+  crawler_save(crawler);
+
   query = qi_create(crawler_get_inv_list(crawler));
+
+  printf("query sistem initialized...\n");
 
   port = atoi(argv[1]);
   sock = socketServer(port);
@@ -335,6 +339,7 @@ void process_post(int conn, char * header) {
   // build HTML code for for search results
   struct site_list *sites = qi_query_expression(query, value);
   char *response = get_response_page_wrapper(sites);
+  qu_destroy_query_results(sites);
 
   // return the header first
   n = strlen(response);

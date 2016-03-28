@@ -254,6 +254,7 @@ struct word_list_s *wls_create(struct word_list *l){
 // revert static list back to dynamic list
 struct word_list *wls_revert(struct word_list_s *ls){
   struct word_list *ld = calloc(1, sizeof(struct word_list));
+  ld->count = ls->count;
   ld->head = *(ls->list);
 
   for(int i = 1; i < ls->count; i++){

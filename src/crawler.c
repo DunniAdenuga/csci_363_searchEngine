@@ -310,7 +310,7 @@ int cl_has_saved_state(struct crawler *c){
 
 // returns a file descriptor for the file where the crawler will be saved
 int cl_get_save_fd(struct crawler *c){
-  int fd = open(c->crawler_state_file, O_CREAT | O_WRONLY, 0600);
+  int fd = open(c->crawler_state_file, O_CREAT | O_WRONLY | O_TRUNC, 0600);
 
   if(fd < 0){
     perror("File Open Error");
@@ -321,7 +321,7 @@ int cl_get_save_fd(struct crawler *c){
 
 // returns a file descriptor from which the crawler should be loaded
 int cl_get_load_fd(struct crawler *c){
-  int fd = open(c->crawler_state_file, O_CREAT | O_RDONLY, 0600);
+  int fd = open(c->crawler_state_file, O_RDONLY, 0600);
 
   if(fd < 0){
     perror("File Open Error");
