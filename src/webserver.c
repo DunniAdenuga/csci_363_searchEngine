@@ -32,7 +32,9 @@
 
 #include "tcplib.h"
 #include "http_response.h"    // HTTP response codes and strings
-#include "pages.h"
+#include "python_interface.h"
+#include "crawler.h"
+#include "query.h"
 
 #define NONEXST -1            // result of file access attempt
 #define NONREAD 0
@@ -68,6 +70,8 @@ void    process_head(char*, int);
 // parsing and response functions
 int getUrls(char *value, char* urls[]);
 
+struct crawler *crawler;
+struct query_interface *query;
 
 /*-----------------------------------------------------------------------
  *
@@ -92,9 +96,9 @@ int main(int argc, char *argv[]) {
     (void) fprintf(stderr, "for example : %s 8688\n", argv[0]);
     exit(1);
   }
-
-  // read in the crawling data (will be altered for phase 3)
-  init_crawler("www.bucknell.edu", "/");
+  crawler = crawler_create("resources/initial_pages.txt", "resources/crawler_state.bin");
+  crawl_up_to(crawler, 3);
+  query = qi_create(crawler_get_inv_list(crawler));
 
   port = atoi(argv[1]);
   sock = socketServer(port);
@@ -146,7 +150,7 @@ int main(int argc, char *argv[]) {
     if (strcasecmp(cmd, "POST") == 0) {
       process_post(conn, header);
     } else if (strcasecmp(cmd, "GET") == 0) {
-      /* process GET  */
+      /* process GET  */// read in the crawling data (will be altered for phase 3)
       process_get(path, conn);
     } else if (strcasecmp(cmd, "HEAD") == 0) {
       /* process HEAD  */
@@ -176,7 +180,7 @@ is_valid_http_req(char * cmd, char * vers) {
         strcasecmp(vers, "HTTP/1.1"))) {
     return 0;   // invalid
   } else {
-    return 1;   // valid
+    return 1;   // valid// read in the crawling data (will be altered for phase 3)
   }
 }
 
@@ -188,7 +192,8 @@ is_valid_http_req(char * cmd, char * vers) {
  *
  * return:
  *   the integer form of the "content-length"
- *-------------------------------------------------------
+ *-------------------------------------------------------// read in the crawling data (will be altered for phase 3)
+  s
  */
 int get_content_length(char * header)  {
 
@@ -225,7 +230,8 @@ int get_content_length(char * header)  {
 }
 
 /*---------------------------------------------------
- * Process the HTTP "HEAD" command, returns meta-
+ * Process the HTTP "HEAD" command, returns meta-// read in the crawling data (will be altered for phase 3)
+  s
  * information about the resource requested
  *
  * parameters:
@@ -327,14 +333,8 @@ void process_post(int conn, char * header) {
   printf("%s\n", value);
 
   // build HTML code for for search results
-  char* urls = get_results_urls(value);
-  char *response;
-
-  if(urls == NULL){
-    response = get_file_data("web/Shmoogle_noresults.html");
-  }else{
-    response = get_response_page(urls);
-  }
+  struct site_list *sites = qi_query_expression(query, value);
+  char *response = get_response_page_wrapper(sites);
 
   // return the header first
   n = strlen(response);
@@ -344,7 +344,6 @@ void process_post(int conn, char * header) {
   send(conn, response, n, 0);
 
   free(response);
-  free(urls);
 }
 
 /*---------------------------------------------------

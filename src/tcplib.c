@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdio.h>
 
 /*
  * global constants 
@@ -30,47 +31,47 @@ int OFF = -1;
  */
 int socketClient(char *host, int port)
 {
-   int s;                   /* socket descriptor                */
-   //int len;               /* length of received data          */
-   struct sockaddr_in  sa;  /* socket addr. structure           */
-   struct hostent * hp;     /* host entry                       */
-   //struct servent * sp;   /* service entry                    */
+  int s;                   /* socket descriptor                */
+  //int len;               /* length of received data          */
+  struct sockaddr_in  sa;  /* socket addr. structure           */
+  struct hostent * hp;     /* host entry                       */
+  //struct servent * sp;   /* service entry                    */
 
-   /* 
-    * Look up the specified hostname
-    */
-   if ((hp = gethostbyname(host)) == NULL)
-       return NOHOST;  /* host does not exist? */
-  
-   /*
-    * Put host's address and address type into socket structure
-    */
-   bcopy((char *)hp->h_addr, (char *)&sa.sin_addr, hp->h_length);
-   sa.sin_family = hp->h_addrtype;
-   
-   /*
-    * Put the whois socket number into the socket structure.
-    */
-   sa.sin_port = htons(port);
-   bzero(&(sa.sin_zero), 8);  /* initialize */
+  /* 
+   * Look up the specified hostname
+   */
+  if ((hp = gethostbyname(host)) == NULL)
+    return NOHOST;  /* host does not exist? */
 
-   /*
-    * Allocate an open socket.
-    */
-   if ((s = socket(hp->h_addrtype, SOCK_STREAM, 0)) < 0)
-       return SOCKFAIL;
+  /*
+   * Put host's address and address type into socket structure
+   */
+  bcopy((char *)hp->h_addr, (char *)&sa.sin_addr, hp->h_length);
+  sa.sin_family = hp->h_addrtype;
 
-   /* set socket option to be reusable */
-   if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (void*)&ON, sizeof(int)) < 0)
-     return SOCKFAIL;
+  /*
+   * Put the whois socket number into the socket structure.
+   */
+  sa.sin_port = htons(port);
+  bzero(&(sa.sin_zero), 8);  /* initialize */
 
-   /*
-    * Connect to the remote server.
-    */
-   if (connect(s,(struct sockaddr *)(&sa),sizeof(struct sockaddr)) < 0)
-       return CONNFAIL;
-   
-   return s;
+  /*
+   * Allocate an open socket.
+   */
+  if ((s = socket(hp->h_addrtype, SOCK_STREAM, 0)) < 0)
+    return SOCKFAIL;
+
+  /* set socket option to be reusable */
+  if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (void*)&ON, sizeof(int)) < 0)
+    return SOCKFAIL;
+
+  /*
+   * Connect to the remote server.
+   */
+  if (connect(s,(struct sockaddr *)(&sa),sizeof(struct sockaddr)) < 0)
+    return CONNFAIL;
+
+  return s;
 }
 
 
@@ -85,53 +86,55 @@ int socketClient(char *host, int port)
  */
 int socketServer(int port)
 {
-   int s;                   /* socket descriptor                */
-   struct sockaddr_in  sa;  /* socket addr. structure           */
-   struct hostent * hp;     /* host entry                       */
-   //struct servent * sp;   /* service entry                    */
-   char localhost[MAXHOSTNAME+1];   /* local host name as character string */
+  int s;                   /* socket descriptor                */
+  struct sockaddr_in  sa;  /* socket addr. structure           */
+  struct hostent * hp;     /* host entry                       */
+  //struct servent * sp;   /* service entry                    */
+  char localhost[MAXHOSTNAME+1];   /* local host name as character string */
 
 
-   /*
-    * Get our own host information
-    */
-   gethostname(localhost,MAXHOSTNAME);
-   if ((hp = gethostbyname(localhost)) == NULL)
-       return NOHOST;
-   
-   sa.sin_port = htons(port);
-   bcopy((char *)hp->h_addr,(char *)&sa.sin_addr,hp->h_length);
-   sa.sin_family = hp->h_addrtype;
+  /*
+   * Get our own host information
+   */
+  int res = gethostname(localhost, MAXHOSTNAME);
+  if ((hp = gethostbyname(localhost)) == NULL){
+    printf("gethostbyname error: %d\n", res);
+    return NOHOST;
+  }
 
-   /*
-    * The following line is added by X. Meng
-    * without it, bind() fails.
-    */
-   sa.sin_addr.s_addr = htonl(INADDR_ANY);
+  sa.sin_port = htons(port);
+  bcopy((char *)hp->h_addr,(char *)&sa.sin_addr,hp->h_length);
+  sa.sin_family = hp->h_addrtype;
 
-   /*
-    * Allocate an open socket for the incoming connections
-    */
-   if ((s = socket(hp->h_addrtype,SOCK_STREAM,0)) < 0)
-       return SOCKFAIL;
+  /*
+   * The following line is added by X. Meng
+   * without it, bind() fails.
+   */
+  sa.sin_addr.s_addr = htonl(INADDR_ANY);
 
-   /* set socket option to be reusable */
-   if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (void*)&ON, sizeof(int)) < 0)
-     return SOCKFAIL;
+  /*
+   * Allocate an open socket for the incoming connections
+   */
+  if ((s = socket(hp->h_addrtype,SOCK_STREAM,0)) < 0)
+    return SOCKFAIL;
 
-   /*
-    * Bind the socket to the service port so
-    * we can hear incoming connection
-    */
-   if (bind(s,(struct sockaddr *)(&sa),sizeof sa) < 0)
-	return BINDFAIL;
+  /* set socket option to be reusable */
+  if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (void*)&ON, sizeof(int)) < 0)
+    return SOCKFAIL;
 
-    /*
-     * Set maximum connections we will fall behind
-     */
-   listen(s, BACKLOG);
-   
-   return s;
+  /*
+   * Bind the socket to the service port so
+   * we can hear incoming connection
+   */
+  if (bind(s,(struct sockaddr *)(&sa),sizeof sa) < 0)
+    return BINDFAIL;
+
+  /*
+   * Set maximum connections we will fall behind
+   */
+  listen(s, BACKLOG);
+
+  return s;
 }
 
 
@@ -142,16 +145,16 @@ int socketServer(int port)
  */
 int acceptConn(int s)
 {
-   struct sockaddr_in sa;      /* internet socket structure  */
-   int i, t;
+  struct sockaddr_in sa;      /* internet socket structure  */
+  int i, t;
 
-   i = sizeof sa;
-   /*
-    * We hang in accept() while waiting for new customers
-    */
-   if ((t = accept(s,(struct sockaddr *)(&sa),(socklen_t*)&i)) < 0)
-       return ACPTFAIL;
-   return t;
+  i = sizeof sa;
+  /*
+   * We hang in accept() while waiting for new customers
+   */
+  if ((t = accept(s,(struct sockaddr *)(&sa),(socklen_t*)&i)) < 0)
+    return ACPTFAIL;
+  return t;
 }
 
 

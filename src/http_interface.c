@@ -1,11 +1,22 @@
+#include "http_interface.h"
+#include "tcplib.h"
+
+#include <string.h>
+#include <stdio.h>
+
+#define HTTPPORT 80
+#define BUFFSIZE 1024
+
+char *str_join(char **buff);
+
 // get the html from the page of host and path
-char *get_page(char *host, char *path){
-  int sock_fd = make_request(host, path, "GET");
-  return get_response(sock_fd);
+char *get_page_content(char *host, char *path){
+  int sock_fd = make_http_request(host, path, "GET");
+  return get_http_response(sock_fd);
 }
 
 // make a request to the server and return the socket fd
-int make_request(char *host, char *path, char *svc)
+int make_http_request(char *host, char *path, char *svc)
 {
   int	port = HTTPPORT;
   int	conn;
@@ -15,8 +26,9 @@ int make_request(char *host, char *path, char *svc)
 	
   /* contact the web server */
   conn = socketClient(host, port);
-  if (conn < 0) 
+  if (conn < 0){
     exit(1);
+  }
 
   /* send an HTTP/1.1 request to the webserver */
 
@@ -37,7 +49,7 @@ int make_request(char *host, char *path, char *svc)
 }
 
 // get the response of a server connected on the provided socket fd
-char *get_response(int sock_fd){
+char *get_http_response(int sock_fd){
   char *out_buff[2048];
   int i; 
   int len;

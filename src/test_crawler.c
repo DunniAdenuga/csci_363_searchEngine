@@ -152,6 +152,8 @@ int test_save_and_load(){
   return result;
 }
 
+/*
+// query functionality is no longer in crawler
 int test_empty_query(){
   struct crawler *c = get_simple_crawler();
   struct site_list *sites = crawler_query(c, "bucknell");
@@ -159,6 +161,7 @@ int test_empty_query(){
   crawler_destroy(c);
   return result;
 }
+
 
 int test_homepage_query(){
   struct crawler *c = get_simple_crawler();
@@ -171,12 +174,13 @@ int test_homepage_query(){
   crawler_destroy(c);
   return result;
 }
+*/
 
 int main(){
   run_test(test_create, "CREATE");
   run_test(test_is_equal, "EQUAL");
   run_test(test_save_and_load, "SAVE_AND_LOAD");
-  run_test(test_empty_query, "QUERY_EMPTY");
-  run_test(test_homepage_query, "QUERY_HOMEPAGE");
+  //run_test(test_empty_query, "QUERY_EMPTY");
+  //run_test(test_homepage_query, "QUERY_HOMEPAGE");
   printf("ALL TESTS HAVE PASSED\n");
 }

@@ -1,7 +1,7 @@
-http://www.eg.bucknell.edu /~csci203/
-http://www.eg.bucknell.edu /~csci204/
-http://www.eg.bucknell.edu /~cs206/
-http://www.eg.bucknell.edu /~cs240/2014-spring/index.html
-http://www.eg.bucknell.edu /~csci311/S14/
-http://www.eg.bucknell.edu /~cs363/
-http://www.eg.bucknell.edu /~cs479/
+www.eg.bucknell.edu /~csci203/
+www.eg.bucknell.edu /~csci204/
+www.eg.bucknell.edu /~cs206/
+www.eg.bucknell.edu /~cs240/2014-spring/index.html
+www.eg.bucknell.edu /~csci311/S14/
+www.eg.bucknell.edu /~cs363/
+www.eg.bucknell.edu /~cs479/

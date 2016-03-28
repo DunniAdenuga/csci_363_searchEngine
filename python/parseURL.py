@@ -66,5 +66,7 @@ while(l != 'terminate\n'):      # loop until terminate key is found
   line = line + l
   l = sys.stdin.readline()
 
+
+
 urls = parse(line, main_host)   # parses the urls and formats them
 sys.stdout.write(urls)          # writes urls to stdout

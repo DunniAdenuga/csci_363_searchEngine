@@ -14,14 +14,14 @@ vpath %.c ./src
 OBJ_SITE_LIST = $(OBJ)/site_list.o $(OBJ)/site_node.o
 OBJ_WORD_LIST = $(OBJ)/word_list.o $(OBJ)/word_node.o $(OBJ_SITE_LIST)
 OBJ_INV_LIST = $(OBJ)/inv_list.o $(OBJ_WORD_LIST)
+OBJ_PY_INT = $(OBJ)/python_interface.o $(OBJ)/tcplib.o
 
-OBJ_CRAWLER = $(OBJ)/initial_page_reader.o $(OBJ)/string_ops.o $(OBJ_INV_LIST) $(OBJ)/crawler.o 
+OBJ_CRAWLER = $(OBJ)/http_interface.o $(OBJ)/initial_page_reader.o $(OBJ)/string_ops.o $(OBJ_PY_INT) $(OBJ_INV_LIST) $(OBJ)/crawler.o 
 OBJ_TEST_CRAWLER = $(OBJ_CRAWLER) $(OBJ)/test_crawler.o
 
-#PAGEOBJS = $(OBJ)/crawler.o $(OBJ)/tcplib.o $(OBJ)/pages.o $(OBJ)/queryFinder.o $(OBJ)/dlist.o $(OBJ)/dnode.o
-#SERVEROBJS = $(OBJ)/webserver.o $(OBJ)/send_eof.o $(OBJ)/readln.o $(PAGEOBJS)
+SERVEROBJS = $(OBJ_CRAWLER) $(OBJ)/query.o $(OBJ)/webserver.o $(OBJ)/send_eof.o
 
-EXECS = test_crawler
+EXECS = test_crawler webserver
 
 all: mkdirs $(EXECS)
 
@@ -43,8 +43,8 @@ test_crawler: $(OBJ_TEST_CRAWLER)
 #test_crawler: $(CRAWLEROBJS)
 	#$(CC) -o $(BIN)/$@ $(LFLAGS) $(OBJ_CRAWLER)
 
-#webserver: $(SERVEROBJS)
-	#$(CC) -o $(BIN)/$@ $(LFLAGS) $(SERVEROBJS)
+webserver: $(SERVEROBJS)
+	$(CC) -o $(BIN)/$@ $(SRC)/readln.c $(LFLAGS) $(SERVEROBJS)
 
 .PHONY: clean
 clean:
