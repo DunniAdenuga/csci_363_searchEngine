@@ -15,9 +15,11 @@ l = ""
 while(l != 'terminate\n'): # reads until terminatino key is found
   if(l!=""):
     l = l[:-1]
-    links = links + '<a href="'+l+'">'+l+'</a><br>' # appends url in HTML format
+    links = links + '<div class="linkDiv"><a href="'+l+'">'+l+'</a></div>' # appends url in HTML format
   l = sys.stdin.readline()
 
+if (links == ""):
+    links = "No Results"
 page = htmlCap+links+htmlTail           # creates HTML page string
 sys.stdout.write(str(len(page)) + "\n") # writes length of page
 sys.stdout.write(page)                  # writes the page
