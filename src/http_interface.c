@@ -26,8 +26,9 @@ int make_http_request(char *host, char *path, char *svc)
 	
   /* contact the web server */
   conn = socketClient(host, port);
-  if (conn < 0) 
+  if (conn < 0){
     exit(1);
+  }
 
   /* send an HTTP/1.1 request to the webserver */
 

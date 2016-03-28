@@ -16,33 +16,27 @@
 #define WRITE 1
 #define READ 0
 
-char *page_content;
-
-char *get_urls(char *page_content);
-char *get_words(char *page_content);
+char *get_newline_seperated_urls(char *host, char *page_content);
+char *get_newline_seperated_words(char *page_content);
 
 int Fork(void);
 int Pipe(int pipefd[2]);
 int Dup2(int oldfd, int newfd);
 
-/*char* control(char *initial_host, char *initial_path){
- page_content = get_page(initial_host, initial_path);
- }*/
-struct site_list* get_urls_wrapper(char *page_content){
+struct site_list* get_urls_wrapper(char *host, char *page_content){
   struct site_list* results = sl_create();
-  char *urls = get_urls(page_content);
-  char* host;
+  char *urls = get_newline_seperated_urls(host, page_content);
+  char* new_host;
   char* path;
 
-  host = strtok(urls, "\n");
+  new_host = strtok(urls, "\n");
   path = strtok(NULL, "\n");
-  sl_add(results, host, path, 0);
 
-  do{
-    host = strtok(NULL, "\n");
+  while(path != NULL){
+    sl_add(results, new_host, path, 0);
+    new_host = strtok(NULL, "\n");
     path = strtok(NULL, "\n");
-    sl_add(results, host, path, 0);
-  }while(path != NULL) ;
+  }
 
   free(urls);
   return results;
@@ -50,23 +44,20 @@ struct site_list* get_urls_wrapper(char *page_content){
 
 struct word_list* get_words_wrapper(char *host, char *path, char *page_content){
   struct word_list* results = wl_create();
-  char *urls = get_words(page_content);
+  char *urls = get_newline_seperated_words(page_content);
   char* freq_str;
   char* word;
-  int freq;
 
   freq_str = strtok(urls, "\n");
   word = strtok(NULL, "\n");
-  freq = atoi(freq_str);
 
-  wl_add(results, word, host, path, freq);
+  while(word != NULL){
+    int freq = atoi(freq_str);
+    wl_add(results, word, host, path, freq);
 
-  do{
     freq_str = strtok(NULL, "\n");
     word = strtok(NULL, "\n");
-    freq = atoi(freq_str);
-    wl_add(results, word, host, path, freq);
-  }while(word != NULL) ;
+  }
 
   free(urls);
   return results;
@@ -165,7 +156,7 @@ char *get_response_page(char *urls){
  *   A string with one discovered url per line
  * -------------------------------------------------------
  */
-char *get_urls(char *page_content){
+char *get_newline_seperated_urls(char *host, char *page_content){
   char *urls;
   pid_t pid_parseURL;
 
@@ -185,6 +176,9 @@ char *get_urls(char *page_content){
 
     // write to and read results from child
     char *term = "\nterminate\n";
+
+    write(com_to_parseURL[WRITE], host, strlen(host));
+    write(com_to_parseURL[WRITE], "\n", 1);
 
     write(com_to_parseURL[WRITE], page_content, strlen(page_content));
     write(com_to_parseURL[WRITE], term, strlen(term));
@@ -232,7 +226,7 @@ char *get_urls(char *page_content){
  *   A string with one discovered word per line
  * -------------------------------------------------------
  */
-char *get_words(char *page_content){
+char *get_newline_seperated_words(char *page_content){
   char *words;
   pid_t pid_parseText;
 
