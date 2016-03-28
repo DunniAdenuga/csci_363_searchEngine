@@ -52,3 +52,12 @@ body {
 	padding: 15px 15px 15px 15px;
 	font-family: arial;
 }
+
+.linkDiv {
+	background-color: #EBEBEB;
+        border-radius: 5px;
+        width: 100%;
+        margin: 10px 0px 10px 0px;
+        padding: 5px 0px 5px 0px;
+        border: 2px solid #CFCFCF;
+}
