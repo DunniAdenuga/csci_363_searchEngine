@@ -27,8 +27,6 @@ char *get_page_content(char *host, char *path){
 // make a request to the server and return the socket fd
 int make_http_request(char *host, char *path, char *svc)
 {
-  int result = strcmp(host, "www.eg.bucknell.edu");
-
   int	port = HTTPPORT;
   int	conn;
   int	len;
