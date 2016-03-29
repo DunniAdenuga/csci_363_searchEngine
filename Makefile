@@ -16,7 +16,7 @@ OBJ_WORD_LIST = $(OBJ)/word_list.o $(OBJ)/word_node.o $(OBJ_SITE_LIST)
 OBJ_INV_LIST = $(OBJ)/inv_list.o $(OBJ_WORD_LIST)
 OBJ_PY_INT = $(OBJ)/python_interface.o $(OBJ)/tcplib.o
 
-OBJ_CRAWLER = $(OBJ)/http_interface.o $(OBJ)/initial_page_reader.o $(OBJ)/string_ops.o $(OBJ_PY_INT) $(OBJ_INV_LIST) $(OBJ)/crawler.o 
+OBJ_CRAWLER = $(OBJ)/http_interface.o $(OBJ)/stop_list_reader.o $(OBJ)/initial_page_reader.o $(OBJ)/string_ops.o $(OBJ_PY_INT) $(OBJ_INV_LIST) $(OBJ)/crawler.o 
 OBJ_TEST_CRAWLER = $(OBJ_CRAWLER) $(OBJ)/test_crawler.o
 
 SERVEROBJS = $(OBJ_CRAWLER) $(OBJ)/query.o $(OBJ)/webserver.o $(OBJ)/send_eof.o

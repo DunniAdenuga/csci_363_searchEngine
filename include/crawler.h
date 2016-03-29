@@ -21,14 +21,16 @@
 
 struct crawler{
   struct inv_list *word_results;
+  struct inv_list *stop_list;
   struct site_list *visited;
   struct site_list *queue;
   char *initial_pages_file;
   char *crawler_state_file;
+  char *stop_list_file;
 };
 
 // Creates a new crawler with the files to be used for initial pages and state storage
-struct crawler *crawler_create(char *initial_pages_file, char *crawler_state_file);
+struct crawler *crawler_create(char *initial_pages_file, char *crawler_state_file, char *stop_list_file);
 
 // Loads a crawler from the state file exiting on invalid
 struct crawler *crawler_load(char *crawler_state_file);
@@ -44,6 +46,9 @@ int crawl_up_to(struct crawler *c, int total_pages);
 
 // Crawls an additional "pages" number of pages from the current state
 int crawl_additional(struct crawler *c, int pages);
+
+// Returns the total number of pages crawled
+int crawler_get_crawled_count(struct crawler *c);
 
 // Determines recursively if two crawlers are equal
 int crawler_is_equal(struct crawler *c1, struct crawler *c2);

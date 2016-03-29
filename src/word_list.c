@@ -7,6 +7,12 @@
 #include "site_list.h"
 #include "site_node.h"
 
+/**
+ * Functions which provide and interface to an inverted list which associates
+ * words with lists of websites and a frequency with which the word appears on
+ * the page. It is explained more thoroughly in the header file.
+ */
+
 //----------------
 // Dynamic list
 //----------------

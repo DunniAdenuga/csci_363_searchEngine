@@ -1,7 +1,6 @@
 #include "inv_list.h"
 #include "site_list.h"
 #include "word_list.h"
-#include "pages.h"
 #include "python_interface.h"
 
 #include <stdio.h>
@@ -16,13 +15,23 @@
 #define WRITE 1
 #define READ 0
 
-char *get_newline_seperated_urls(char *host, char *page_content);
-char *get_newline_seperated_words(char *page_content);
+/**
+ * A simple interface for the use of python programs for text parsing.
+ */
 
-int Fork(void);
-int Pipe(int pipefd[2]);
-int Dup2(int oldfd, int newfd);
+// the raw string interface to the python programs
+static char *get_newline_seperated_urls(char *host, char *page_content);
+static char *get_newline_seperated_words(char *page_content);
+char *get_response_page(char *urls);
 
+// simple system call wrappers
+static int Fork(void);
+static int Pipe(int pipefd[2]);
+static int Dup2(int oldfd, int newfd);
+
+
+// returns a list of urls found in the page (the host is used to resolve
+// relative urls)
 struct site_list* get_urls_wrapper(char *host, char *page_content){
   struct site_list* results = sl_create();
   char *urls = get_newline_seperated_urls(host, page_content);
@@ -42,6 +51,8 @@ struct site_list* get_urls_wrapper(char *host, char *page_content){
   return results;
 }
 
+// returns a list of the words found on the page (host and path used to
+// populate correctly)
 struct word_list* get_words_wrapper(char *host, char *path, char *page_content){
   struct word_list* results = wl_create();
   char *urls = get_newline_seperated_words(page_content);
@@ -63,6 +74,7 @@ struct word_list* get_words_wrapper(char *host, char *path, char *page_content){
   return results;
 }
 
+// returns a results page including the provided links
 char* get_response_page_wrapper(struct site_list* list){
   struct site_node* node;
   char urls[MAX] = { 0 };

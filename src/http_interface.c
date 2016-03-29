@@ -7,20 +7,15 @@
 #define HTTPPORT 80
 #define BUFFSIZE 100000
 
-char *str_join(char **buff);
+/**
+ * A collection of functions which assist in retrieving html page content.
+ */
 
-char *get_host_without_protocol(char *host){
-  char *http = "http://";
-  char *https = "https://";
-  char *myhost = host;
+// helper functions used locally
+static int make_http_request(char *host, char *path, char *svc);
+static char *get_http_response(int sock_fd);
+static char *get_host_without_protocol(char *host);
 
-  if(strncmp(host, http, strlen(http)) == 0){
-    myhost = host + strlen(http);
-  }else if(strncmp(host, https, strlen(https)) == 0){
-    myhost = host + strlen(https);
-  }
-  return myhost;
-}
 
 // get the html from the page of host and path
 char *get_page_content(char *host, char *path){
@@ -32,8 +27,6 @@ char *get_page_content(char *host, char *path){
 // make a request to the server and return the socket fd
 int make_http_request(char *host, char *path, char *svc)
 {
-  int result = strcmp(host, "www.eg.bucknell.edu");
-
   int	port = HTTPPORT;
   int	conn;
   int	len;
@@ -64,6 +57,7 @@ int make_http_request(char *host, char *path, char *svc)
   return conn;
 }
 
+// receive an http response on a file descriptor where a request has been made
 char *get_http_response(int sock_fd){
   char *out_buff = malloc(BUFFSIZE);
   int len = recv(sock_fd, out_buff, BUFFSIZE-1, 0);
@@ -72,47 +66,17 @@ char *get_http_response(int sock_fd){
   return out_buff;
 }
 
+// strips the http and https protocol specifiers from a host name
+char *get_host_without_protocol(char *host){
+  char *http = "http://";
+  char *https = "https://";
+  char *myhost = host;
 
-/*
-// get the response of a server connected on the provided socket fd
-char *get_http_response(int sock_fd){
-  char *out_buff[2048];
-  int i; 
-  int len;
-
-  out_buff[0] = malloc(BUFFSIZE);
-
-  // collect page text
-  for(i = 0; (len = recv(sock_fd, out_buff[i], BUFFSIZE-1, 0)) > 0; i++){
-    out_buff[i][len] = '\0';             // null terminate
-    out_buff[i+1] = malloc(BUFFSIZE);    // prepare next buffer
-    printf("%s\n", out_buff[i]);
+  if(strncmp(host, http, strlen(http)) == 0){
+    myhost = host + strlen(http);
+  }else if(strncmp(host, https, strlen(https)) == 0){
+    myhost = host + strlen(https);
   }
-
-  return str_join(out_buff);              // out_buff buffers freed by str_join
+  return myhost;
 }
 
-// join the strings of a **buff into a single string and free the buffers
-char *str_join(char **buff){
-  char *out_buff;
-  int i;
-  int total = 0;
-
-  // calculate total space required
-  for(i = 0; buff[i] != NULL; i++){
-    total += strlen(buff[i]);
-  }
-
-  // initialize the buffer
-  out_buff = malloc(total + 1);
-  out_buff[0] = '\0';
-
-  // concatenate the strings and free
-  for(i = 0; buff[i] != NULL; i++){
-    strcat(out_buff, buff[i]);
-    free(buff[i]);
-  }
-
-  return out_buff;
-}
-*/
