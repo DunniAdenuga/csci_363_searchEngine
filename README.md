@@ -61,3 +61,40 @@ Then, open a web browser and enter the following:
 localhost:PORT
 ```
 
+## Phase 3
+
+### Description
+The main purpose of this phase was to handle crawling to different urls and generating a list of urls for searches. onality. 
+
+### Compilation
+
+To test the functionality of the project, we must first compile the programs.
+To do this, `cd` into the root folder of the project and call `make`. This
+should compile the program without error.
+
+Then, run the following commands:
+```
+$chmod 644 web/Shmoogle_noresults.html
+$chmod 644 web/Shmoogle.html
+$chmod 644 web/HTML_Styling.css
+```
+
+### Execution
+ Now, run the crawler with the following command:
+```
+./bin/crawl_program NUMPAGES
+```
+where `NUMPAGES` is an integer for the number of pages to crawl
+- rerun the command to crawl more pages
+
+Then, run the webserver with this command:
+```
+./bin/webserver PORT
+```
+where `PORT` is the port number (e.g 14025)
+
+4. Open a web browser and enter:
+```
+localhost:PORT
+```
+5. Enter word or words you want to search for into textbox of webpage shown to you and result would be returned to you.
