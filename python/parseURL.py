@@ -5,10 +5,10 @@ import sys
 
 def parse(line, main_host):
   '''Finds urls within webpage and returns them'''
-  regEx = '(href *= *[\'"]((https?://)?[0-9a-zA-Z-/\.$#:\?]+)[\'"])'
+  regEx = '(href *= *[\'"]((https?://)?[0-9a-zA-Z-/\.$~#:\?]+)[\'"])'
   output = regParse(regEx)
   if (output == ""):
-    regEx = '(URL=(http://[0-9a-zA-Z-/\.$#:\?]+)[\'"])'
+    regEx = '(URL=(https?://[0-9a-zA-Z-/\.$~#:\?]+)[\'"])'
     output = regParse(regEx)
   return output
 
@@ -78,4 +78,3 @@ while(l != 'terminate\n'):      # loop until terminate key is found
 
 urls = parse(line, main_host)   # parses the urls and formats them
 sys.stdout.write(urls)          # writes urls to stdout
-
