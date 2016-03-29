@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[]){
   if(argc != 2){
-    printf("Ussage: %s <max_pages_to_crawl>\n", argv[0]);
+    printf("Ussage: %s <additional_pages_to_crawl>\n", argv[0]);
     exit(0);
   }
 

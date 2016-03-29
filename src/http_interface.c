@@ -15,13 +15,17 @@
 static int make_http_request(char *host, char *path, char *svc);
 static char *get_http_response(int sock_fd);
 static char *get_host_without_protocol(char *host);
+static char *remove_response_header(char *response);
 
 
 // get the html from the page of host and path
 char *get_page_content(char *host, char *path){
   char *host_without_protocol = get_host_without_protocol(host);
   int sock_fd = make_http_request(host_without_protocol, path, "GET");
-  return get_http_response(sock_fd);
+  char *response = get_http_response(sock_fd);
+  char *page_content = remove_response_header(response);
+  free(response);
+  return page_content;
 }
 
 // make a request to the server and return the socket fd
@@ -80,3 +84,12 @@ char *get_host_without_protocol(char *host){
   return myhost;
 }
 
+// removes the response header and returns the response body
+static char *remove_response_header(char *response){
+  char *hdr_end = "\r\n\r\n";
+  char *first_hdr_end = strstr(response, hdr_end);
+  char *last_hdr_end = first_hdr_end + strlen(hdr_end);
+  char *response_body = calloc(1, strlen(last_hdr_end) + 1);
+  strcpy(response_body, last_hdr_end);
+  return response_body;
+}
