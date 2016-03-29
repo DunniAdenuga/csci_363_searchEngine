@@ -34,7 +34,7 @@ int il_is_equal(struct inv_list *l1, struct inv_list *l2){
   return wls_is_equal(l1->ls, l2->ls);
 }
 
-// add a word site pair
+// add a word site pair incrementing existing frequencies if they already exist
 int il_add(struct inv_list *l, char *word, char *host, char *path, int freq){
   if(!l->dynamic)
     return 0;
@@ -63,7 +63,7 @@ int il_contains(struct inv_list *l, char *word){
   return wls_contains(l->ls, word);
 }
 
-// get the list of sites for a word
+// get the list of sites associated with a word
 struct site_list *il_get_sites(struct inv_list *l, char *word){
   struct word_node *node;
 
@@ -77,7 +77,7 @@ struct site_list *il_get_sites(struct inv_list *l, char *word){
   return wn_get_sites(node);
 }
 
-// state manipulation
+// converts the list to a static list
 void il_set_static(struct inv_list *l){
   if(!l->dynamic)
     return;
@@ -85,6 +85,7 @@ void il_set_static(struct inv_list *l){
   l->dynamic = 0;
 }
 
+// converts the list to a dynamic list
 void il_set_dynamic(struct inv_list *l){
   if(l->dynamic)
     return;
@@ -92,13 +93,13 @@ void il_set_dynamic(struct inv_list *l){
   l->dynamic = 1;
 }
 
-// saving a file
+// saves a list to a file
 void il_save(struct inv_list *l, int fd){
   il_set_static(l);
   wls_save(l->ls, fd);
 }
 
-// loading a file
+// creates a list from a file
 struct inv_list *il_load(int fd){
   struct inv_list *l = malloc(sizeof(struct inv_list));
 
@@ -109,7 +110,7 @@ struct inv_list *il_load(int fd){
   return l;
 }
 
-// display
+// displays the list
 void il_display(struct inv_list *l){
   if(l->dynamic)
     wl_display(l->ld);

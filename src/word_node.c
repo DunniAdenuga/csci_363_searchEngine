@@ -5,6 +5,11 @@
 
 #include "word_node.h"
 
+/**
+ * Functions which provide an interface to a node within a word_list. It is
+ * described more fully in the header file.
+ */
+
 // create a new word node for the given word
 struct word_node *wn_create(char *word){
   struct word_node *node = malloc(sizeof(struct word_node));

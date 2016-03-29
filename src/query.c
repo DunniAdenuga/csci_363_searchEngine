@@ -8,25 +8,35 @@
 
 #define MAXWORDS 20
 
-void append_site_list(struct site_list *dst, struct site_list *src);
-struct site_list *join_site_lists(struct site_list **site_lists, int count);
-struct site_list **get_site_lists(struct query_interface *q, char **word_list, int count);
-void destroy_site_lists(struct site_list **lists, int count);
-void destroy_word_list(char **words, int count);
-char **get_word_list(char *expression, int count);
-int get_word_count(char *expression);
+/**
+ * An interface for querying an inverted list
+ */
 
+// manipulation of site lists found during query
+static void append_site_list(struct site_list *dst, struct site_list *src);
+static struct site_list *join_site_lists(struct site_list **site_lists, int count);
+static struct site_list **get_site_lists(struct query_interface *q, char **word_list, int count);
+static void destroy_site_lists(struct site_list **lists, int count);
+
+// manipulation of words and word_lists created during query
+static void destroy_word_list(char **words, int count);
+static char **get_word_list(char *expression, int count);
+static int get_word_count(char *expression);
+
+// creates a new query interface
 struct query_interface *qi_create(struct inv_list *il){
   struct query_interface *q = calloc(1, sizeof(struct query_interface));
   q->il = il;
   return q;
 }
 
+// frees the memory of the query interface
 void qi_destroyi(struct query_interface *q) {
 	il_destroy(q->il);
   free(q);
 }
 
+// retrieves a list of all sites associated with all words in an expression
 struct site_list *qi_query_expression(struct query_interface *q, char *expression) {
   int count = get_word_count(expression);
   char **word_list = get_word_list(expression, count);
@@ -38,6 +48,7 @@ struct site_list *qi_query_expression(struct query_interface *q, char *expressio
 	return master_list;
 }
 
+// retrieves a list of sites associated with the given word
 struct site_list *qi_query_word(struct query_interface *q, char *word){
   struct site_list *s = il_get_sites(q->il, word);
   if(s == NULL || s->count == 0)
@@ -45,10 +56,12 @@ struct site_list *qi_query_word(struct query_interface *q, char *word){
   return s;
 }
 
+// frees memory allocated for query results
 void qi_destroy_query_results(struct site_list *s){
   sl_destroy(s);
 }
 
+// combines a list of site lists
 struct site_list *join_site_lists(struct site_list **site_lists, int count){
   struct site_list *master_list = sl_create();
   for(int i = 0; i < count; i++){
@@ -57,6 +70,7 @@ struct site_list *join_site_lists(struct site_list **site_lists, int count){
   return master_list;
 }
 
+// adds one site list to another
 void append_site_list(struct site_list *dst, struct site_list *src){
   struct site_node *current = sl_iter_begin(src);
   while(current != NULL){
@@ -65,6 +79,7 @@ void append_site_list(struct site_list *dst, struct site_list *src){
   }
 }
 
+// retrieves a list of site lists associated with a list of words
 struct site_list **get_site_lists(struct query_interface *q, char **word_list, int count){
   struct site_list **lists = calloc(count, sizeof(struct site_list *));
   for(int i = 0; i < count; i++){
@@ -73,6 +88,7 @@ struct site_list **get_site_lists(struct query_interface *q, char **word_list, i
   return lists;
 }
 
+// frees the memory of a list of site lists created by "get_site_lists"
 void destroy_site_lists(struct site_list **lists, int count){
   // don't destroy the lists pointed to because they are sitll in q->il
   for(int i = 0; i < count; i++){
@@ -83,6 +99,7 @@ void destroy_site_lists(struct site_list **lists, int count){
   free(lists);
 }
 
+// frees the memory of a list of words created by "get_word_list"
 void destroy_word_list(char **words, int count){
   for(int i = 0; i < count; i++){
     free(words[i]);
@@ -90,6 +107,7 @@ void destroy_word_list(char **words, int count){
   free(words);
 }
 
+// returns a list of words found in expression
 char **get_word_list(char *expression, int count){
   char *exp_copy = malloc(strlen(expression) + 1);
   strcpy(exp_copy, expression);
@@ -109,6 +127,7 @@ char **get_word_list(char *expression, int count){
   return words;
 }
 
+// returns the number of words in the expression
 int get_word_count(char *expression){
   char *exp_copy = malloc(strlen(expression) + 1);
   strcpy(exp_copy, expression);

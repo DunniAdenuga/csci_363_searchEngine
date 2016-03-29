@@ -1,12 +1,3 @@
-/*
- * Original version from Doug Comer's book "Internetworking with TCP/IP"
- * Revised for CSCI 363
- * Xiannong Meng <xmeng@bucknell.edu>
- * 2015-12-11
- */
-
-/* webclient.c */
-
 #define _GNU_SOURCE     // we want to use strcasestr()
 #include <stdlib.h>
 #include <stdio.h>
@@ -22,8 +13,9 @@
 
 #include "python_interface.h"
 #include "http_interface.h"
-#include "initial_page_reader.h"
 #include "string_ops.h"
+#include "initial_page_reader.h"
+#include "stop_list_reader.h"
 
 #define BUFFSIZE	512
 #define HTTPPORT   80
@@ -32,31 +24,38 @@
 #define DELAY_FOR     3
 
 
-// functions defined in the file that aren't in the header file
-
+// creation and loading helper function
 static void cl_load_current_state(struct crawler *c);
 static void cl_load_from_file(struct crawler *c);
+static void cl_load_initial_pages(struct crawler *c);
+static void cl_load_stop_list(struct crawler *c);
 static void cl_create_from_initial(struct crawler *c);
 
+// struct attribute management
 static void cl_set_initial_pages_file(struct crawler *c, char *initial_pages_file);
 static void cl_set_crawler_state_file(struct crawler *c, char *crawler_state_file);
+static void cl_set_stop_list_file(struct crawler *c, char *stop_list_file);
 
-static void cl_load_initial_pages(struct crawler *c);
+// queue management functions
 static void cl_enqueue_initial_pages(struct crawler *c, char **hosts, char **paths, int count);
 static void cl_enqueue_site_list(struct crawler *c, struct site_list *s);
 static void cl_enqueue_page(struct crawler *c, char *host, char *path);
 static void cl_dequeue_page(struct crawler *c);
 
+// queue access functions
 static int cl_queue_is_empty(struct crawler *c);
 static char *cl_peek_host(struct crawler *c);
 static char *cl_peek_path(struct crawler *c);
 
+// crawler processing functions
 static void cl_process_next_queue_page(struct crawler *c);
 static void cl_process_page(struct crawler *c, char *host, char *path);
 
+// crawler state management functions
 static void cl_set_for_crawl(struct crawler *c);
 static void cl_set_for_query(struct crawler *c);
 
+// crawler disk operations
 static void cl_save_to_file(struct crawler *c);
 static int cl_has_saved_state(struct crawler *c);
 static int cl_get_load_fd(struct crawler *c);
@@ -64,11 +63,12 @@ static int cl_get_save_fd(struct crawler *c);
 
 
 
-// creates a new crawler
-struct crawler *crawler_create(char *initial_pages_file, char *crawler_state_file){
+// creates a new crawler loading from disk as appropriate
+struct crawler *crawler_create(char *initial_pages_file, char *crawler_state_file, char *stop_list_file){
   struct crawler *c = calloc(1, sizeof(struct crawler));
   cl_set_initial_pages_file(c, initial_pages_file);
   cl_set_crawler_state_file(c, crawler_state_file);
+  cl_set_stop_list_file(c, stop_list_file);
   
   cl_load_current_state(c);
   cl_set_for_query(c);
@@ -76,6 +76,7 @@ struct crawler *crawler_create(char *initial_pages_file, char *crawler_state_fil
   return c;
 }
 
+// creates a crawler from disk specifically
 struct crawler *crawler_load(char *crawler_state_file){
   struct crawler *c = calloc(1, sizeof(struct crawler));
   cl_set_crawler_state_file(c, crawler_state_file);
@@ -122,6 +123,11 @@ int crawl_additional(struct crawler *c, int pages){
   return crawl_up_to(c, c->visited->count + pages);
 }
 
+// Returns the total number of pages crawled
+int crawler_get_crawled_count(struct crawler *c){
+  return c->visited->count;
+}
+
 // returns the inverted list being maintained by this crawler
 struct inv_list *crawler_get_inv_list(struct crawler *c){
   return c->word_results;
@@ -164,6 +170,14 @@ void cl_set_crawler_state_file(struct crawler *c, char *crawler_state_file){
   strcpy(c->crawler_state_file, crawler_state_file);
 }
 
+// sets up the crawler stop list file
+void cl_set_stop_list_file(struct crawler *c, char *stop_list_file){
+  if(c->stop_list_file != NULL)
+    free(c->stop_list_file);
+  c->stop_list_file = malloc(strlen(stop_list_file) + 1);
+  strcpy(c->stop_list_file, stop_list_file);
+}
+
 // loads state from crawler_state_file if it exists or initial if not
 void cl_load_current_state(struct crawler *c){
   if(cl_has_saved_state(c)){
@@ -177,10 +191,12 @@ void cl_load_current_state(struct crawler *c){
 void cl_load_from_file(struct crawler *c){
   int fd = cl_get_load_fd(c);
   c->word_results = il_load(fd);
+  c->stop_list = il_load(fd);
   c->visited = sl_load(fd);
   c->queue = sl_load(fd);
   c->initial_pages_file = str_load(fd);
   c->crawler_state_file = str_load(fd);
+  c->stop_list_file = str_load(fd);
   close(fd);
 }
 
@@ -188,6 +204,7 @@ void cl_load_from_file(struct crawler *c){
 void cl_save_to_file(struct crawler *c){
   int fd = cl_get_save_fd(c);
   il_save(c->word_results, fd);
+  il_save(c->stop_list, fd);
   sl_save(c->visited, fd);
   sl_save(c->queue, fd);
   str_save(c->initial_pages_file, fd);
@@ -198,10 +215,12 @@ void cl_save_to_file(struct crawler *c){
 // creates a crawler from the initial urls in initial_urls_file
 void cl_create_from_initial(struct crawler *c){
   c->word_results = il_create();
+  c->stop_list = il_create();
   c->visited = sl_create();
   c->queue = sl_create();
 
   cl_load_initial_pages(c);
+  cl_load_stop_list(c);
 }
 
 // loads the initial pages into the processing queue
@@ -211,6 +230,18 @@ void cl_load_initial_pages(struct crawler *c){
   int count = get_initial_page_count(c->initial_pages_file);
   cl_enqueue_initial_pages(c, hosts, paths, count);
   free_initial_pages(hosts, paths, c->initial_pages_file);
+}
+
+// loads the initial stop list from the file
+void cl_load_stop_list(struct crawler *c){
+  il_set_dynamic(c->stop_list);
+  char **words = get_stop_words(c->stop_list_file);
+  int word_count = get_stop_word_count(c->stop_list_file);
+  for(int i = 0; i < word_count; i++){
+    il_add(c->stop_list, words[i], "", "", 0);
+  }
+  free_stop_words(words, c->stop_list_file);
+  il_set_static(c->stop_list);
 }
 
 // enqueues each of the initial pages into the processing queue
@@ -255,7 +286,8 @@ void cl_add_site_list(struct crawler *c, char *word, struct site_list *s){
 void cl_add_word_list(struct crawler *c, struct word_list *w){
   struct word_node *w_node = wl_iter_begin(w);
   while(w_node != NULL){
-    cl_add_site_list(c, w_node->word, w_node->sites);
+    if(!il_contains(c->stop_list, w_node->word))
+      cl_add_site_list(c, w_node->word, w_node->sites);
     w_node = wl_iter_next(w);
   }
 }

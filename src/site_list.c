@@ -5,6 +5,10 @@
 
 #include "site_list.h"
 
+/**
+ * Functions which provide an interface to a doubly linked list of websites.
+ */
+
 // creates a new site list
 struct site_list *sl_create(){
   struct site_list *l = malloc(sizeof(struct site_list));
