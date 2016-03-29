@@ -329,6 +329,8 @@ void cl_process_page(struct crawler *c, char *host, char *path){
     return;
 
   char *page_content = get_page_content(host, path);
+  printf("%s", page_content);
+
   struct site_list *sites = get_urls_wrapper(host, page_content);
   struct word_list *words = get_words_wrapper(host, path, page_content);
 

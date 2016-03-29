@@ -11,7 +11,7 @@
 
 int main(int argc, char *argv[]){
   if(argc != 2){
-    printf("Ussage: %s <max_pages_to_crawl>\n", argv[0]);
+    printf("Ussage: %s <additional_pages_to_crawl>\n", argv[0]);
     exit(0);
   }
 
@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
   int crawl_initial = crawler_get_crawled_count(crawler);
   int crawl_additional = atoi(argv[1]);
   int crawl_total = crawl_initial + crawl_additional;
-  int increment = 10;
+  int increment = 1;
 
   // main loop incrementing by <increment> pages
   for(int i = crawl_initial; i < crawl_total; i += increment){

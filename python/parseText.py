@@ -25,11 +25,11 @@ def updateDict(key):
 words to a dicitonary'''
 l = sys.stdin.readline() 
 while(l != "terminate\n"):                   #looks for termination key
-  runReg(" [A-Za-z\-]+ ",l)
-  runReg(" [A-Za-z\-]+[\.,]",l)
-  runReg("\>[A-Za-z\-]+\<",l)
-  runReg("\>[A-Za-z\-]+ ",l)
-  runReg(" [A-Za-z\-]+\<",l)
+  runReg("\s[0-9A-Za-z\-]+\s",l)
+  runReg("\s[0-9A-Za-z\-]+[\.,:]",l)
+  runReg("\>[0-9A-Za-z\-]+\<",l)
+  runReg("\>[0-9A-Za-z\-]+\s",l)
+  runReg("\s[0-9A-Za-z\-]+\<",l)
     # sys.stdout.write(t.lower()+"\n") 
   l = sys.stdin.readline()             # reads next line
 
