@@ -25,7 +25,9 @@ $chmod 644 web/Shmoogle_noresults.html
 $chmod 644 web/Shmoogle.html
 $chmod 644 web/HTML_Styling.css
 
-2. 
+2. Now, run the crawler with the following command:
+
+./bin/crawl_program
 
 3. Then, run the webserver with this command:
 
