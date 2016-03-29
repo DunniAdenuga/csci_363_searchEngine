@@ -21,7 +21,7 @@ int main(int argc, char *argv[]){
   int crawl_initial = crawler_get_crawled_count(crawler);
   int crawl_additional = atoi(argv[1]);
   int crawl_total = crawl_initial + crawl_additional;
-  int increment = 10;
+  int increment = 1;
 
   // main loop incrementing by <increment> pages
   for(int i = crawl_initial; i < crawl_total; i += increment){
