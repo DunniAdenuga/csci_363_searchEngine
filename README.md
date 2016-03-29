@@ -64,7 +64,7 @@ localhost:PORT
 ## Phase 3
 
 ### Description
-The main purpose of this phase was to handle crawling to different urls and generating a list of urls for searches. onality. 
+The main purpose of this phase was to handle crawling to different urls and generating a list of urls for searches.  
 
 ### Compilation
 
