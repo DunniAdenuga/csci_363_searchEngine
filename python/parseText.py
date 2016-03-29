@@ -7,6 +7,11 @@ f = open("resources/output.txt", "w")
 f.write("I do exist.\n")
 dict = {} #dictionary to hold word frequency
 
+def runReg(regEx,l):
+  p = re.compile(regEx)                # compiles regEx
+  for t in p.findall(l):               # finds all matches
+    updateDict((t[1:-1]).lower())        # converts to lower - recognizes similar words and updates dict
+
 def updateDict(key):
   '''Given a key, this funciton either adds the new key to 
   the dictionary or it updates the existing key'''
@@ -20,10 +25,11 @@ def updateDict(key):
 words to a dicitonary'''
 l = sys.stdin.readline() 
 while(l != "terminate\n"):                   #looks for termination key
-  regEx = "[A-Za-z\-]+"   
-  p = re.compile(regEx)                # compiles regEx
-  for t in p.findall(l):               # finds all matches
-    updateDict(t.lower())        # converts to lower - recognizes similar words and updates dict
+  runReg(" [A-Za-z\-]+ ",l)
+  runReg(" [A-Za-z\-]+[\.,]",l)
+  runReg("\>[A-Za-z\-]+\<",l)
+  runReg("\>[A-Za-z\-]+ ",l)
+  runReg(" [A-Za-z\-]+\<",l)
     # sys.stdout.write(t.lower()+"\n") 
   l = sys.stdin.readline()             # reads next line
 
@@ -34,3 +40,4 @@ for elem in dict.keys():
   f.write(str(dict[elem]) + "\n" + elem + "\n")
   sys.stdout.write(str(dict[elem])+ "\n" + elem + "\n") 
 f.close()
+
