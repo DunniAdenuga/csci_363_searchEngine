@@ -6,6 +6,13 @@ import sys
 def parse(line, main_host):
   '''Finds urls within webpage and returns them'''
   regEx = '(href *= *[\'"]((https?://)?[0-9a-zA-Z-/\.$#:\?]+)[\'"])'
+  output = regParse(regEx)
+  if (output == ""):
+    regEx = '(URL=(http://[0-9a-zA-Z-/\.$#:\?]+)[\'"])'
+    output = regParse(regEx)
+  return output
+
+def regParse(regEx):
   p = re.compile(regEx)
   output = ""
   for t in p.findall(line):
@@ -42,7 +49,9 @@ def handle_rel(url):
 
 def handle_abs(url):
   '''handles formatting absolute urls'''
-  (proto, page) = url.split("//")
+  splitURL = url.split("//")
+  proto = splitURL[0]
+  page = '//'.join(splitURL[1:]) 
   elements = page.split("/")
   host = elements[0]
   path = "/" + "/".join(elements[1:])
@@ -67,6 +76,6 @@ while(l != 'terminate\n'):      # loop until terminate key is found
   l = sys.stdin.readline()
 
 
-
 urls = parse(line, main_host)   # parses the urls and formats them
 sys.stdout.write(urls)          # writes urls to stdout
+
