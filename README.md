@@ -64,7 +64,7 @@ localhost:PORT
 ## Phase 3
 
 ### Description
-The main purpose of this phase was to handle crawling to different urls and generating a list of urls for searches. onality. 
+The main purpose of this phase was to handle crawling to different urls and generating a list of urls for searches.  
 
 ### Compilation
 
@@ -94,7 +94,9 @@ Then, run the webserver with this command:
 where `PORT` is the port number (e.g 14025)
 
 4. Open a web browser and enter:
+
 ```
 localhost:PORT
 ```
+
 5. Enter word or words you want to search for into textbox of webpage shown to you and result would be returned to you.
