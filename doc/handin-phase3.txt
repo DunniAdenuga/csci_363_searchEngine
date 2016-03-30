@@ -29,8 +29,8 @@ $chmod 644 web/HTML_Styling.css
 
 ./bin/crawl_program NUMPAGES
 where NUMPAGES is an integer for the number of pages to crawl
-- rerun the command to crawl more pages
 - occasionally the crawler freezes, please ctrl-c and continue
+- rerun the command if you want to crawl more pages
 
 3. Then, run the webserver with this command:
 
