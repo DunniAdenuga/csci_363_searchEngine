@@ -55,7 +55,7 @@ def handle_abs(url):
   elements = page.split("/")
   host = elements[0]
   path = "/" + "/".join(elements[1:])
-  return (host, path)
+  return (proto + "//" + host, path)
 
 def is_abs(path):
   '''true if starts with http - it is absolute'''
