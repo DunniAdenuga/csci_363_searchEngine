@@ -1,0 +1,23 @@
+Running our Search Engine:
+
+Open a terminal
+1. Run the Makefile by entering this command:
+
+make
+
+and the following commands:
+$chmod 644 web/Shmoogle_noresults.html
+$chmod 644 web/Shmoogle.html
+$chmod 644 web/HTML_Styling.css
+
+2. Then, run the webserver with this command:
+
+./bin/webserver PORT
+
+where PORT is the port number e.g 14025
+
+3. Open a web browser and enter:
+
+localhost:PORT
+
+4. Enter word you want to search for into textbox of webpage shown to you and result would be returned to you.

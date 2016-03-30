@@ -1,0 +1,45 @@
+Michael Hammer
+Greg Shrock
+Dunni Adenuga
+
+
+PHASE ANALYSIS ---------------------------------------
+The main purpose of this phase was to handle crawling to different urls and generating a list of urls for searches. In this phase Greg handled implementing the crawling and assisted other team members, Dunni refactored our code and helped Greg, and Michael wrote docuentation and added multiple word searching funcitonality. 
+
+When we started this phase we needed to refactor some of our old code so that crawling could be done more elegantly. This included refactoring the datastructure used to store data and wrapping some complex funcitons. The complex funcitons included python functionns that were all implemented similarily. We made a dynamic linked list structure that was able to easily store information and a static array structure which was used to quickly access information. These structures were used to store words, and their associated URLs and frequencies. After this, the code was easier to work with while implementing the crawler. Some hard points of making the crawler were having it use the new datastructures we created for storing information. Finally, we needed to change the way multiple words were searched. To do this, we combined the list of urls for each searched word into one larger list. The new list of urls was then added to a webpage that was sent back to the client browser. 
+
+The team enjoyed seeing the final project. We have come a long way since phase one.
+
+
+
+HOW TO RUN -------------------------------------------
+Running our Search Engine:
+
+Open a terminal
+1. Run the Makefile by entering this command:
+
+make
+
+and the following commands:
+$chmod 644 web/Shmoogle_noresults.html
+$chmod 644 web/Shmoogle.html
+$chmod 644 web/HTML_Styling.css
+
+2. Now, run the crawler with the following command:
+
+./bin/crawl_program NUMPAGES
+where NUMPAGES is an integer for the number of pages to crawl
+- occasionally the crawler freezes, please ctrl-c and continue
+- rerun the command if you want to crawl more pages
+
+3. Then, run the webserver with this command:
+
+./bin/webserver PORT
+
+where PORT is the port number (e.g 14025)
+
+4. Open a web browser and enter:
+
+localhost:PORT
+
+5. Enter word or words you want to search for into textbox of webpage shown to you and result would be returned to you.
